@@ -330,7 +330,7 @@ function build(src){
       else{const v=val(m[3]);if(v){if(m[2]==='Source'&&v.t==='s')v.t='p';n.props[m[2]]=v;}else warn.push('Unsupported value at '+m[1]+'.'+m[2])}
       continue;
     }
-    if(/:Connect\s*\(|\bfunction\b|\btask\.(wait|spawn|delay)\b|\b(TweenService|RunService)\b/.test(st)){
+    if(/:Connect\s*\(|\bfunction\b|\btask\.(wait|spawn|delay)\b/.test(st)){
       warn.push('Runtime logic is not previewed: '+st.replace(/\s+/g,' ').slice(0,52));
       continue;
     }
