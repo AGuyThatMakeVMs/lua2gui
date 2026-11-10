@@ -124,7 +124,7 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--lg);outline-offs
   <section class="card">
     <h2><i></i>Live UI preview</h2>
     <div class="pv" id="pv"><div class="stage" id="stage"></div></div>
-    <div class="stats"><div class="stat"><b id="s1">0</b><small>instances</small></div><div class="stat"><b id="s2">0</b><small>properties</small></div><div class="stat"><b id="s3">0</b><small>warnings</small></div></div>
+    <div class="stats"><div class="stat"><b id="s1">0</b><small>instances</small></div><div class="stat"><b id="s2">0</b><small>properties</small></div><div class="stat"><b id="s4">0</b><small>scripts</small></div><div class="stat"><b id="s3">0</b><small>warnings</small></div></div>
     <div class="row"><pre id="tree" style="width:100%">—</pre></div>
     <div class="warn" id="warn"></div>
   </section>
@@ -148,7 +148,7 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--lg);outline-offs
   <div class="step"><b>2</b><h3>Export your model</h3><p>Download the .rbxmx file directly, or get it inside a ZIP archive.</p></div>
   <div class="step"><b>3</b><h3>Import into Studio</h3><p>In Roblox Studio, right-click <b>StarterGui</b>, choose <b>Insert from File</b>, and select your .rbxmx file.</p></div>
 </div>
-<div class="note">Lua 2 Gui converts supported static <code>Instance.new</code> UI declarations and property values. It does not execute scripts, loops, functions, or event callbacks. Unsupported statements are reported as warnings, and the original source can be downloaded as <code>.lua</code>. Use Roblox Studio to run and test scripts. Unparented UI objects are placed inside an automatic <code>ScreenGui</code>.</div>
+<div class="note">Lua 2 Gui builds a model from supported <code>Instance.new</code> declarations. <code>LocalScript</code>, <code>Script</code>, and <code>ModuleScript</code> instances are kept in the exported hierarchy, including their <code>Source</code> when provided as a Lua long-bracket string (<code>[[...]]</code>). Scripts are packaged, never executed by this website. Dynamic code that creates UI at runtime still needs to be tested in Roblox Studio. Unparented UI objects are placed inside an automatic <code>ScreenGui</code>.</div>
 <footer>Lua 2 Gui · Built for Roblox creators</footer>
 </div>
 
@@ -224,18 +224,38 @@ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'
 
 /* ---------- leitura do Lua ---------- */
 function stmts(src){
-  src=src.replace(/--\[\[[\s\S]*?\]\]/g,'').replace(/--.*$/gm,'');
-  const out=[];let cur='',d=0,q=null;
-  for(const ch of src){
-    if(q){cur+=ch;if(ch===q)q=null;continue}
-    if(ch==='"'||ch==="'"){q=ch;cur+=ch;continue}
-    if('({['.includes(ch))d++;
-    if(')}]'.includes(ch))d--;
-    if((ch==='\n'||ch===';')&&d<=0){out.push(cur.trim());cur='';d=0;continue}
+  const out=[];let cur='',depth=0,quote=null,longEnd=null;
+  for(let i=0;i<src.length;i++){
+    const ch=src[i],next=src[i+1]||'';
+    if(longEnd){
+      if(src.startsWith(longEnd,i)){cur+=longEnd;i+=longEnd.length-1;longEnd=null;}
+      else cur+=ch;
+      continue;
+    }
+    if(quote){
+      cur+=ch;
+      if(ch==='\\\\'&&i+1<src.length){cur+=src[++i];continue;}
+      if(ch===quote)quote=null;
+      continue;
+    }
+    if(ch==='-'&&next==='-'){
+      const lm=src.slice(i+2).match(/^\\[(=*)\\[/);
+      if(lm){const opener='['+lm[1]+'[';longEnd=']'+lm[1]+']';i+=2+opener.length-1;}
+      else{while(i<src.length&&src[i]!=='\\n')i++;if(depth===0){if(cur.trim())out.push(cur.trim());cur='';}}
+      continue;
+    }
+    if(ch==='['){
+      const lm=src.slice(i).match(/^\\[(=*)\\[/);
+      if(lm){const opener='['+lm[1]+'[';cur+=opener;i+=opener.length-1;longEnd=']'+lm[1]+']';continue;}
+    }
+    if(ch==='"'||ch==="'"){quote=ch;cur+=ch;continue;}
+    if('({['.includes(ch))depth++;
+    if(')}]'.includes(ch))depth=Math.max(0,depth-1);
+    if((ch==='\\n'||ch===';')&&depth===0){if(cur.trim())out.push(cur.trim());cur='';continue;}
     cur+=ch;
   }
-  out.push(cur.trim());
-  return out.filter(Boolean);
+  if(cur.trim())out.push(cur.trim());
+  return out;
 }
 function args(s){
   const a=[];let c='',d=0,q=null;
@@ -264,6 +284,7 @@ function num(s){
 }
 function val(s){
   s=s.trim();let m;
+  if(m=s.match(/^\\[(=*)\\[([\\s\\S]*)\\]\\1\\]$/))return{t:'p',v:m[2]};
   if(m=s.match(/^(["'])([\s\S]*)\1$/))return{t:'s',v:m[2]};
   if(s==='true'||s==='false')return{t:'b',v:s==='true'};
   if(m=s.match(/^(UDim2|UDim|Vector2|Color3)\.(\w+)\(([\s\S]*)\)$/)){
@@ -296,7 +317,7 @@ function build(src){
     if(m&&vars[m[1]]){
       const n=vars[m[1]];
       if(m[2]==='Parent')n.pref=m[3].trim();
-      else{const v=val(m[3]);if(v)n.props[m[2]]=v;else warn.push('Unsupported value at '+m[1]+'.'+m[2])}
+      else{const v=val(m[3]);if(v){if(m[2]==='Source'&&v.t==='s')v.t='p';n.props[m[2]]=v;}else warn.push('Unsupported value at '+m[1]+'.'+m[2])}
       continue;
     }
     if(!/^(end|do|return)\b/.test(st)&&!/^local\s+\w+(\s*=\s*(game|script|workspace)\b.*)?$/.test(st))
@@ -319,6 +340,7 @@ function prop(k,v){
   const a='name="'+k+'"';
   switch(v.t){
     case's':return T[k]==='c'?'<Content '+a+'><url>'+esc(v.v)+'</url></Content>':'<string '+a+'>'+esc(v.v)+'</string>';
+    case'p':return'<ProtectedString '+a+'><![CDATA['+v.v.replace(/\\]\\]>/g,']]]]><![CDATA[>')+']]></ProtectedString>';
     case'b':return'<bool '+a+'>'+v.v+'</bool>';
     case'n':return T[k]==='i'?'<int '+a+'>'+Math.round(v.v)+'</int>':'<float '+a+'>'+v.v+'</float>';
     case'UDim2':return'<UDim2 '+a+'><XS>'+v.v[0]+'</XS><XO>'+Math.round(v.v[1])+'</XO><YS>'+v.v[2]+'</YS><YO>'+Math.round(v.v[3])+'</YO></UDim2>';
@@ -386,7 +408,8 @@ function render(n,host){
 let XML='';
 const cnt=n=>1+n.kids.reduce((a,k)=>a+cnt(k),0);
 const np=n=>Object.keys(n.props).length+n.kids.reduce((a,k)=>a+np(k),0);
-const tree=(n,d)=>'  '.repeat(d)+(d?'└ ':'')+n.cls+'  “'+((n.props.Name&&n.props.Name.v)||n.vn||n.cls)+'”\n'+n.kids.map(k=>tree(k,d+1)).join('');
+const tree=(n,d)=>'  '.repeat(d)+(d?'└ ':'')+n.cls+'  “'+((n.props.Name&&n.props.Name.v)||n.vn||n.cls)+'”'+((n.cls==='LocalScript'||n.cls==='Script'||n.cls==='ModuleScript')?'  [source '+(n.props.Source?'included':'empty')+']':'')+'\n'+n.kids.map(k=>tree(k,d+1)).join('');
+const scriptCount=n=>((n.cls==='LocalScript'||n.cls==='Script'||n.cls==='ModuleScript')?1:0)+n.kids.reduce((a,k)=>a+scriptCount(k),0);
 function msg(t){$('msg').textContent=t}
 function fit(){const k=$('pv').clientWidth/800;$('stage').style.transform='scale('+k+')';$('pv').style.height=450*k+'px'}
 function run(){
@@ -403,6 +426,7 @@ function run(){
   $('s1').textContent=roots.reduce((a,r)=>a+cnt(r),0);
   $('s2').textContent=roots.reduce((a,r)=>a+np(r),0);
   $('s3').textContent=warn.length;
+  $('s4').textContent=roots.reduce((a,r)=>a+scriptCount(r),0);
   $('warn').innerHTML=warn.slice(0,6).map(w=>'<div>'+esc(w)+'</div>').join('')+(warn.length>6?'<div>…e mais '+(warn.length-6)+'</div>':'');
   ['dzip','dtxt','cp'].forEach(i=>$(i).disabled=!XML);
   $('dlua').disabled=!$('src').value.trim();
