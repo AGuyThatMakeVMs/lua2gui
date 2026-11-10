@@ -100,7 +100,9 @@ textarea,pre{transition:border-color .2s,box-shadow .2s}
 .g{animation:popIn .22s ease-out both}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 
-button:focus-visible,.btn:focus-visible{outline:2px solid var(--lg);outline-offset:3px}\n</style>
+button:focus-visible,.btn:focus-visible{outline:2px solid var(--lg);outline-offset:3px}
+.preview-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 10px;color:var(--mt);font-size:.82rem}.preview-tools label{display:flex;align-items:center;gap:7px}.preview-tools select,.preview-tools input[type=range]{accent-color:var(--g)}.preview-tools select{background:#040a06;color:var(--be);border:1px solid var(--ln);border-radius:8px;padding:7px}.preview-tools input[type=range]{width:95px}.device-shell{position:relative;width:800px;height:450px;overflow:hidden;border-radius:12px;background:#101820;box-shadow:0 12px 35px #0008}.device-shell.phone{border:9px solid #1b2721;border-radius:30px}.device-shell.tablet{border:8px solid #1b2721;border-radius:22px}.preview-hint{font-size:.78rem;color:var(--mt);margin-top:8px}.runtime-toggle{display:flex;align-items:center;gap:7px;color:var(--mt);font-size:.82rem}.runtime-toggle input{accent-color:var(--g);width:16px;height:16px}.g img.preview-image{width:100%;height:100%;object-fit:contain;pointer-events:none}.g .t{padding:2px 4px}.pv{background-color:#0a1510;background-image:linear-gradient(45deg,#15271d 25%,transparent 25%),linear-gradient(-45deg,#15271d 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#15271d 75%),linear-gradient(-45deg,transparent 75%,#15271d 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -118,12 +120,14 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--lg);outline-offs
       <button class="btn main" id="go">Convert</button>
       <button class="btn" id="ex">Load example</button>
       <button class="btn" id="clr">Clear</button>
-      <label class="btn" for="file">Open .lua</label><input id="file" type="file" accept=".lua,.txt,text/plain" hidden>
+      <label class="btn" for="file">Open .lua / .luau</label><input id="file" type="file" accept=".lua,.luau,.txt,text/plain" hidden>
     </div>
   </section>
   <section class="card">
     <h2><i></i>Live UI preview</h2>
-    <div class="pv" id="pv"><div class="stage" id="stage"></div></div>
+    <div class="preview-tools"><label>Device <select id="device"><option value="desktop">Desktop · 16:9</option><option value="phone">Phone · portrait</option><option value="tablet">Tablet</option></select></label><label>Zoom <input id="zoom" type="range" min="35" max="110" value="100"></label><button class="btn" id="fitBtn" type="button">Fit</button></div>
+    <div class="pv" id="pv"><div class="device-shell" id="deviceShell"><div class="stage" id="stage"></div></div></div>
+    <div class="preview-hint">Static preview only. Original scripts can be included in the export, but are not run in your browser.</div>
     <div class="stats"><div class="stat"><b id="s1">0</b><small>instances</small></div><div class="stat"><b id="s2">0</b><small>properties</small></div><div class="stat"><b id="s4">0</b><small>scripts</small></div><div class="stat"><b id="s3">0</b><small>warnings</small></div></div>
     <div class="row"><pre id="tree" style="width:100%">—</pre></div>
     <div class="warn" id="warn"></div>
@@ -134,6 +138,7 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--lg);outline-offs
   <h2><i></i>Export for Roblox Studio</h2>
   <div class="row" style="margin-top:0">
     <input class="name" id="fname" value="LuaGui" aria-label="File name" maxlength="40">
+    <label class="runtime-toggle"><input type="checkbox" id="includeRuntime" checked> Include original source as a LocalScript</label>
     <button class="btn beige" id="dzip" disabled>Download .zip</button>
     <button class="btn" id="dtxt" disabled>Download .rbxmx</button>
     <button class="btn" id="dlua" disabled>Download source .lua</button>
@@ -148,7 +153,7 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--lg);outline-offs
   <div class="step"><b>2</b><h3>Export your model</h3><p>Download the .rbxmx file directly, or get it inside a ZIP archive.</p></div>
   <div class="step"><b>3</b><h3>Import into Studio</h3><p>In Roblox Studio, right-click <b>StarterGui</b>, choose <b>Insert from File</b>, and select your .rbxmx file.</p></div>
 </div>
-<div class="note">Lua 2 Gui builds a model from supported <code>Instance.new</code> declarations. <code>LocalScript</code>, <code>Script</code>, and <code>ModuleScript</code> instances are kept in the exported hierarchy, including their <code>Source</code> when provided as a Lua long-bracket string (<code>[[...]]</code>). Scripts are packaged, never executed by this website. Dynamic code that creates UI at runtime still needs to be tested in Roblox Studio. Unparented UI objects are placed inside an automatic <code>ScreenGui</code>.</div>
+<div class="note">Lua 2 Gui reads <code>.lua</code> and <code>.luau</code> files, extracts supported GUI creation statements, and preserves the original source as an optional <code>LocalScript</code> in the exported model. The browser never executes your script. When imported into Roblox Studio, an included LocalScript can run, so only export and run code you trust. Dynamic UI, loops, functions, and event callbacks are preserved in the script but cannot be faithfully simulated by the static preview.</div>
 <footer>Lua 2 Gui · Built for Roblox creators</footer>
 </div>
 
@@ -416,9 +421,16 @@ const np=n=>Object.keys(n.props).length+n.kids.reduce((a,k)=>a+np(k),0);
 const tree=(n,d)=>'  '.repeat(d)+(d?'└ ':'')+n.cls+'  “'+((n.props.Name&&n.props.Name.v)||n.vn||n.cls)+'”'+((n.cls==='LocalScript'||n.cls==='Script'||n.cls==='ModuleScript')?'  [source '+(n.props.Source?'included':'empty')+']':'')+'\n'+n.kids.map(k=>tree(k,d+1)).join('');
 const scriptCount=n=>((n.cls==='LocalScript'||n.cls==='Script'||n.cls==='ModuleScript')?1:0)+n.kids.reduce((a,k)=>a+scriptCount(k),0);
 function msg(t){$('msg').textContent=t}
-function fit(){const k=$('pv').clientWidth/800;$('stage').style.transform='scale('+k+')';$('pv').style.height=450*k+'px'}
+let view={w:800,h:450,zoom:1};
+function setDevice(){const mode=$('device').value;view=mode==='phone'?{w:390,h:844,zoom:1}:mode==='tablet'?{w:768,h:1024,zoom:1}:{w:800,h:450,zoom:1};const sh=$('deviceShell'),st=$('stage');sh.className='device-shell '+(mode==='desktop'?'':mode);sh.style.width=view.w+'px';sh.style.height=view.h+'px';st.style.width=view.w+'px';st.style.height=view.h+'px';fit()}
+function fit(){const scale=Math.min($('pv').clientWidth/view.w,520/view.h)*view.zoom;$('stage').style.transform='scale('+scale+')';$('pv').style.height=view.h*scale+'px'}
 function run(){
   const{roots,warn}=build($('src').value);
+  const source=$('src').value;
+  if($('includeRuntime').checked&&source.trim()&&roots.length){
+    const hasSource=roots.some(function scan(n){return ((n.cls==='LocalScript'||n.cls==='Script'||n.cls==='ModuleScript')&&n.props.Source)||n.kids.some(scan)});
+    if(!hasSource){const target=roots.find(r=>r.cls==='ScreenGui')||roots[0];target.kids.push({cls:'LocalScript',vn:'Lua2GuiSource',props:{Name:{t:'s',v:'Lua2GuiSource'},Source:{t:'p',v:source}},kids:[]});warn.push('Original source added as a LocalScript. It may execute when placed in a runnable Roblox location.');}
+  }
   const st=$('stage');st.innerHTML='';
   if(!roots.length){
     XML='';$('out').value='';$('tree').textContent='No UI objects detected yet.';
@@ -481,8 +493,12 @@ $('cp').onclick=()=>{
 };
 $('file').onchange=async e=>{const f=e.target.files[0];if(f){$('src').value=await f.text();run()}};
 let tm;$('src').oninput=()=>{clearTimeout(tm);tm=setTimeout(run,350)};
+$('device').onchange=()=>{setDevice();run()};
+$('zoom').oninput=()=>{view.zoom=Number($('zoom').value)/100;fit()};
+$('fitBtn').onclick=()=>{$('zoom').value=100;view.zoom=1;fit()};
+$('includeRuntime').onchange=run;
 addEventListener('resize',fit);
-$('src').value=SAMPLE;run();
+$('src').value=SAMPLE;setDevice();run();
 </script>
 </body>
 </html>
