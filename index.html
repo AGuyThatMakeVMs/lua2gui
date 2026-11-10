@@ -334,7 +334,11 @@ function build(src){
       warn.push('Runtime logic is not previewed: '+st.replace(/\s+/g,' ').slice(0,52));
       continue;
     }
-    if(!/^(end|do|return)\b/.test(st)&&!/^local\s+\w+(\s*=\s*(game|script|workspace)\b.*)?$/.test(st))
+    // Valid Luau declarations and assignments that do not directly create UI.
+    // Recognize them instead of incorrectly reporting them as unsupported.
+    if(/^(?:local\s+)?[A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*\s*=\s*[\s\S]+$/.test(st)) continue;
+    if(/^(?:local\s+)?[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\[[^\]]+\])*\s*[+\-*/]?=/.test(st)) continue;
+    if(!/^(end|do|return)\b/.test(st))
       warn.push('Unsupported statement: '+st.replace(/\s+/g,' ').slice(0,60));
   }
   let roots=[];
