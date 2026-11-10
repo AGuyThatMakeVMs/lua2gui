@@ -138,7 +138,7 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--lg);outline-offs
   <h2><i></i>Export for Roblox Studio</h2>
   <div class="row" style="margin-top:0">
     <input class="name" id="fname" value="LuaGui" aria-label="File name" maxlength="40">
-    <label class="runtime-toggle"><input type="checkbox" id="includeRuntime" checked> Include original source as a LocalScript</label>
+    <label class="runtime-toggle"><input type="checkbox" id="includeRuntime"> Include original source as a LocalScript</label>
     <button class="btn beige" id="dzip" disabled>Download .zip</button>
     <button class="btn" id="dtxt" disabled>Download .rbxmx</button>
     <button class="btn" id="dlua" disabled>Download source .lua</button>
@@ -373,7 +373,7 @@ function toXML(roots){
 }
 
 /* ---------- preview ---------- */
-const VIS=/^(Frame|TextLabel|TextButton|TextBox|ImageLabel|ImageButton|ScrollingFrame|CanvasGroup)$/;
+const VIS=/^(Frame|TextLabel|TextButton|TextBox|ImageLabel|ImageButton|ScrollingFrame|CanvasGroup|ViewportFrame|VideoFrame)$/;
 const px=(s,o)=>'calc('+s*100+'% + '+o+'px)';
 const col=(c,d,al)=>'rgba('+(c?c.v:d).map(x=>Math.round(x*255)).join(',')+','+al+')';
 function render(n,host){
@@ -385,8 +385,7 @@ function render(n,host){
     const z=g('Size')||[0,0,0,0],q=g('Position')||[0,0,0,0],a=g('AnchorPoint')||[0,0],s=el.style;
     const inLayout=host!==$('stage')&&(host.style.display==='flex'||host.style.display==='grid');
     s.position=inLayout?'relative':'absolute';s.width=px(z[0],z[1]);s.height=px(z[2],z[3]);s.left=inLayout?'auto':px(q[0],q[1]);s.top=inLayout?'auto':px(q[2],q[3]);
-    if(inLayout)s.transform='none';
-    s.transform='translate('+(-a[0]*100)+'%,'+(-a[1]*100)+'%) rotate('+(g('Rotation')||0)+'deg)';
+    if(inLayout)s.transform='none';else s.transform='translate('+(-a[0]*100)+'%,'+(-a[1]*100)+'%) rotate('+(g('Rotation')||0)+'deg)';
     s.background=col(p.BackgroundColor3,[.64,.63,.65],1-(g('BackgroundTransparency')??0));
     const bs=p.BorderSizePixel?g('BorderSizePixel'):1;
     s.border=bs+'px solid '+col(p.BorderColor3,[.1,.16,.21],1);
@@ -437,7 +436,7 @@ const scriptCount=n=>((n.cls==='LocalScript'||n.cls==='Script'||n.cls==='ModuleS
 function msg(t){$('msg').textContent=t}
 let view={w:800,h:450,zoom:1};
 function setDevice(){const mode=$('device').value;view=mode==='phone'?{w:390,h:844,zoom:1}:mode==='tablet'?{w:768,h:1024,zoom:1}:{w:800,h:450,zoom:1};const sh=$('deviceShell'),st=$('stage');sh.className='device-shell '+(mode==='desktop'?'':mode);sh.style.width=view.w+'px';sh.style.height=view.h+'px';st.style.width=view.w+'px';st.style.height=view.h+'px';fit()}
-function fit(){const scale=Math.min($('pv').clientWidth/view.w,520/view.h)*view.zoom;$('stage').style.transform='scale('+scale+')';$('pv').style.height=view.h*scale+'px'}
+function fit(){const scale=Math.min($('pv').clientWidth/view.w,520/view.h)*view.zoom;$('stage').style.transform='scale('+scale+')';$('deviceShell').style.width=view.w*scale+'px';$('deviceShell').style.height=view.h*scale+'px';$('pv').style.height=view.h*scale+'px'}
 function run(){
   const{roots,warn}=build($('src').value);
   const source=$('src').value;
