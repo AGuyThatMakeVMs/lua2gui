@@ -325,6 +325,11 @@ function build(src){
   }
   let roots=[];
   for(const n of all){const p=n.pref&&vars[n.pref];if(p&&p!==n)p.kids.push(n);else roots.push(n)}
+  if(!roots.length&&src.trim()){
+    const script={cls:'LocalScript',vn:'MainLocalScript',props:{Name:{t:'s',v:'MainLocalScript'},Source:{t:'p',v:src}},kids:[]};
+    roots=[{cls:'ScreenGui',vn:'LuaGui',props:{Name:{t:'s',v:'LuaGui'}},kids:[script]}];
+    warn.push('No static UI objects detected: the pasted code was preserved as a LocalScript');
+  }
   const loose=roots.filter(n=>n.cls!=='ScreenGui');
   if(loose.length){
     roots=roots.filter(n=>n.cls==='ScreenGui');
