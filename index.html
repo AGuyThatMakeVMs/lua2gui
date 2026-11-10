@@ -3,7 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Lua 2 Gui — Turn Lua into Roblox UI</title>
+<title>Lua 2 Gui | Luau to Roblox UI Converter</title>
+<meta name="description" content="Convert supported Roblox Luau UI code into editable .rbxmx models. Preview interfaces live, inspect warnings, and export your original .lua script.">
+<meta name="theme-color" content="#050b07">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="canonical" href="https://lua2gui.pages.dev/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lua 2 Gui">
+<meta property="og:title" content="Lua 2 Gui | Luau to Roblox UI Converter">
+<meta property="og:description" content="Preview Roblox UI code live and export .rbxmx models.">
+<meta property="og:url" content="https://lua2gui.pages.dev/">
+<meta property="og:image" content="https://lua2gui.pages.dev/og-image.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lua 2 Gui | Luau to Roblox UI Converter">
+<meta name="twitter:description" content="Convert supported Luau UI code into Roblox model files with a live preview.">
+<meta name="twitter:image" content="https://lua2gui.pages.dev/og-image.svg">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;800&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;700&display=swap">
 <style>
 :root{color-scheme:dark;--bg:#050b07;--pn:#0b1710;--pn2:#112218;--ln:#1f3d2b;--g:#2fa66a;--lg:#a8f0bf;--be:#eadfc6;--mt:#8ea796;--tx:#e8efe9;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -121,6 +136,7 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--lg);outline-offs
     <input class="name" id="fname" value="LuaGui" aria-label="File name" maxlength="40">
     <button class="btn beige" id="dzip" disabled>Download .zip</button>
     <button class="btn" id="dtxt" disabled>Download .rbxmx</button>
+    <button class="btn" id="dlua" disabled>Download source .lua</button>
     <button class="btn" id="cp" disabled>Copy XML</button>
   </div>
   <div id="msg"></div>
@@ -132,7 +148,7 @@ button:focus-visible,.btn:focus-visible{outline:2px solid var(--lg);outline-offs
   <div class="step"><b>2</b><h3>Export your model</h3><p>Download the .rbxmx file directly, or get it inside a ZIP archive.</p></div>
   <div class="step"><b>3</b><h3>Import into Studio</h3><p>In Roblox Studio, right-click <b>StarterGui</b>, choose <b>Insert from File</b>, and select your .rbxmx file.</p></div>
 </div>
-<div class="note">Lua 2 Gui reads supported, static <code>Instance.new</code> declarations and property assignments. It does not run Lua code, loops, functions, or events. Unparented UI objects are placed inside an automatically created <code>ScreenGui</code>. This is a lightweight converter, not a full Lua interpreter.</div>
+<div class="note">Lua 2 Gui converts supported static <code>Instance.new</code> UI declarations and property values. It does not execute scripts, loops, functions, or event callbacks. Unsupported statements are reported as warnings, and the original source can be downloaded as <code>.lua</code>. Use Roblox Studio to run and test scripts. Unparented UI objects are placed inside an automatic <code>ScreenGui</code>.</div>
 <footer>Lua 2 Gui · Built for Roblox creators</footer>
 </div>
 
@@ -389,6 +405,7 @@ function run(){
   $('s3').textContent=warn.length;
   $('warn').innerHTML=warn.slice(0,6).map(w=>'<div>'+esc(w)+'</div>').join('')+(warn.length>6?'<div>…e mais '+(warn.length-6)+'</div>':'');
   ['dzip','dtxt','cp'].forEach(i=>$(i).disabled=!XML);
+  $('dlua').disabled=!$('src').value.trim();
   fit();
 }
 
@@ -417,8 +434,9 @@ async function dl(kind){
   const nm=($('fname').value.trim().replace(/[^\w\-]+/g,'_')||'LuaGui');
   try{
     if(kind==='zip') saveBlob(nm+'.zip',zip(nm+'.rbxmx',XML));
+    else if(kind==='lua') saveBlob(nm+'.lua',new Blob([$('src').value],{type:'text/plain;charset=utf-8'}));
     else saveBlob(nm+'.rbxmx',new Blob([XML],{type:'application/xml;charset=utf-8'}));
-    msg(kind==='zip'?'ZIP downloaded. Extract it and import '+nm+'.rbxmx into Studio.':'RBXMX file downloaded. Import it into Roblox Studio.');
+    msg(kind==='zip'?'ZIP downloaded. Extract it and import '+nm+'.rbxmx into Studio.':kind==='lua'?'Original Luau source downloaded as '+nm+'.lua.':'RBXMX file downloaded. Import it into Roblox Studio.');
   }catch(e){msg('Download failed. Try “Copy XML” instead.');}
 }
 $('go').onclick=run;
@@ -426,6 +444,7 @@ $('ex').onclick=()=>{$('src').value=SAMPLE;run()};
 $('clr').onclick=()=>{$('src').value='';run()};
 $('dzip').onclick=()=>dl('zip');
 $('dtxt').onclick=()=>dl('rbxmx');
+$('dlua').onclick=()=>dl('lua');
 $('cp').onclick=()=>{
   const ok=()=>msg('XML copied! Paste it into a file ending in .rbxmx.');
   const fb=()=>{$('out').select();let r=false;try{r=document.execCommand('copy')}catch(e){}msg(r?'XML copied! Save it as a .rbxmx file.':'Select the text box and copy the XML manually.')};
