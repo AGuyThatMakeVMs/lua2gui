@@ -306,6 +306,7 @@ function val(s){
     if(k==='Color3'){
       if(f==='fromRGB'&&a.length===3)return{t:'Color3',v:a.map(x=>x/255)};
       if(f==='new')return{t:'Color3',v:[a[0]||0,a[1]||0,a[2]||0]};
+      if(f==='fromHex'&&args(m[3]).length===1){const h=args(m[3])[0].replace(/["' #]/g,'');if(/^[0-9a-fA-F]{6}$/.test(h))return{t:'Color3',v:[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)/255)};}
     }
     return null;
   }
@@ -382,7 +383,9 @@ function render(n,host){
     if(!VIS.test(n.cls))return;
     el=document.createElement('div');el.className='g';
     const z=g('Size')||[0,0,0,0],q=g('Position')||[0,0,0,0],a=g('AnchorPoint')||[0,0],s=el.style;
-    s.width=px(z[0],z[1]);s.height=px(z[2],z[3]);s.left=px(q[0],q[1]);s.top=px(q[2],q[3]);
+    const inLayout=host!==$('stage')&&(host.style.display==='flex'||host.style.display==='grid');
+    s.position=inLayout?'relative':'absolute';s.width=px(z[0],z[1]);s.height=px(z[2],z[3]);s.left=inLayout?'auto':px(q[0],q[1]);s.top=inLayout?'auto':px(q[2],q[3]);
+    if(inLayout)s.transform='none';
     s.transform='translate('+(-a[0]*100)+'%,'+(-a[1]*100)+'%) rotate('+(g('Rotation')||0)+'deg)';
     s.background=col(p.BackgroundColor3,[.64,.63,.65],1-(g('BackgroundTransparency')??0));
     const bs=p.BorderSizePixel?g('BorderSizePixel'):1;
@@ -392,9 +395,17 @@ function render(n,host){
     if(p.ZIndex)s.zIndex=g('ZIndex');
     if(p.ClipsDescendants&&g('ClipsDescendants'))s.overflow='hidden';
     for(const k of n.kids){
-      const kp=k.props;
-      if(k.cls==='UICorner'){const r=kp.CornerRadius?kp.CornerRadius.v:[0,8];s.borderRadius=r[0]?r[0]*100+'%':r[1]+'px'}
-      if(k.cls==='UIStroke'){s.boxShadow='0 0 0 '+(kp.Thickness?kp.Thickness.v:1)+'px '+col(kp.Color,[0,0,0],1)}
+      const kp=k.props,gv=name=>kp[name]&&kp[name].v;
+      if(k.cls==='UICorner'){const r=gv('CornerRadius')||[0,8];s.borderRadius=r[0]?r[0]*100+'%':r[1]+'px'}
+      if(k.cls==='UIStroke'){s.boxShadow='inset 0 0 0 '+(gv('Thickness')||1)+'px '+col(kp.Color,[0,0,0],1-(gv('Transparency')||0))}
+      if(k.cls==='UIListLayout'){s.display='flex';s.flexDirection=gv('FillDirection')==='Horizontal'?'row':'column';s.justifyContent=({Center:'center',Right:'flex-end',Bottom:'flex-end',Left:'flex-start',Top:'flex-start'})[gv('HorizontalAlignment')]||'flex-start';s.alignItems=({Center:'center',Right:'flex-end',Bottom:'flex-end',Left:'flex-start',Top:'flex-start'})[gv('VerticalAlignment')]||'flex-start';const pd=gv('Padding');if(pd)s.gap=(pd[0]*100)+'%';}
+      if(k.cls==='UIGridLayout'){s.display='grid';const cs=gv('CellSize')||[0,120,0,80],gap=gv('CellPadding')||[0,8,0,8];s.gridTemplateColumns='repeat(auto-fill,minmax('+Math.max(70,cs[1])+'px,1fr))';s.gap=(gap[1]||0)+'px '+(gap[3]||0)+'px';}
+      if(k.cls==='UIPadding'){const unit=name=>{const v=gv(name)||[0,0];return (v[0]*100)+'% + '+v[1]+'px'};s.padding='calc('+unit('PaddingTop')+') calc('+unit('PaddingRight')+') calc('+unit('PaddingBottom')+') calc('+unit('PaddingLeft')+')';}
+      if(k.cls==='UIAspectRatioConstraint'&&gv('AspectRatio'))s.aspectRatio=gv('AspectRatio');
+    }
+    if(n.cls==='ImageLabel'||n.cls==='ImageButton'){
+      const image=String(g('Image')||'');if(image){const im=document.createElement('img');im.className='preview-image';im.alt='';im.src=/^rbxassetid:\/\/\d+$/.test(image)?'https://www.roblox.com/asset/?id='+image.split('//')[1]:/^https:\/\//.test(image)?image:'';if(im.src)el.appendChild(im);}
+      if(g('ScaleType')==='Fit')el.style.objectFit='contain';
     }
     if(/^Text/.test(n.cls)){
       const t=document.createElement('span');t.className='t';
@@ -403,6 +414,9 @@ function render(n,host){
       t.style.justifyContent=fx[xa];t.style.alignItems=fy[ya];t.style.textAlign=xa.toLowerCase();
       t.style.color=col(p.TextColor3,[.1,.16,.21],1-(g('TextTransparency')??0));
       t.style.fontSize=(g('TextSize')||14)+'px';
+      if(g('TextWrapped'))t.style.whiteSpace='pre-wrap';
+      if(g('TextScaled'))t.style.fontSize='clamp(8px, 2vw, '+(g('TextSize')||18)+'px)';
+      if(g('TextStrokeTransparency')!==undefined&&g('TextStrokeTransparency')<1)t.style.textShadow='-1px -1px 0 '+col(p.TextStrokeColor3,[0,0,0],1-g('TextStrokeTransparency'))+',1px 1px 0 '+col(p.TextStrokeColor3,[0,0,0],1-g('TextStrokeTransparency'));
       const f=(p.Font&&p.Font.v)||'SourceSans';
       t.style.fontWeight=/Bold|Black/.test(f)?800:400;
       t.style.fontFamily='system-ui,sans-serif';
