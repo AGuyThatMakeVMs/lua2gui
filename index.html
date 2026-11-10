@@ -224,34 +224,34 @@ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'
 
 /* ---------- leitura do Lua ---------- */
 function stmts(src){
-  const out=[];let cur='',depth=0,quote=null,longEnd=null;
+  const out=[];let cur='',depth=0,quote=null,longEnd=null,skipLong=false;
   for(let i=0;i<src.length;i++){
     const ch=src[i],next=src[i+1]||'';
     if(longEnd){
-      if(src.startsWith(longEnd,i)){cur+=longEnd;i+=longEnd.length-1;longEnd=null;}
-      else cur+=ch;
+      if(src.startsWith(longEnd,i)){if(!skipLong)cur+=longEnd;i+=longEnd.length-1;longEnd=null;skipLong=false;}
+      else if(!skipLong)cur+=ch;
       continue;
     }
     if(quote){
       cur+=ch;
-      if(ch==='\\\\'&&i+1<src.length){cur+=src[++i];continue;}
+      if(ch==='\\'&&i+1<src.length){cur+=src[++i];continue;}
       if(ch===quote)quote=null;
       continue;
     }
     if(ch==='-'&&next==='-'){
-      const lm=src.slice(i+2).match(/^\\[(=*)\\[/);
-      if(lm){const opener='['+lm[1]+'[';longEnd=']'+lm[1]+']';i+=2+opener.length-1;}
-      else{while(i<src.length&&src[i]!=='\\n')i++;if(depth===0){if(cur.trim())out.push(cur.trim());cur='';}}
+      const lm=src.slice(i+2).match(/^\[(=*)\[/);
+      if(lm){const opener='['+lm[1]+'[';longEnd=']'+lm[1]+']';skipLong=true;i+=2+opener.length-1;}
+      else{while(i<src.length&&src[i]!=='\n')i++;if(depth===0){if(cur.trim())out.push(cur.trim());cur='';}}
       continue;
     }
     if(ch==='['){
-      const lm=src.slice(i).match(/^\\[(=*)\\[/);
+      const lm=src.slice(i).match(/^\[(=*)\[/);
       if(lm){const opener='['+lm[1]+'[';cur+=opener;i+=opener.length-1;longEnd=']'+lm[1]+']';continue;}
     }
     if(ch==='"'||ch==="'"){quote=ch;cur+=ch;continue;}
     if('({['.includes(ch))depth++;
     if(')}]'.includes(ch))depth=Math.max(0,depth-1);
-    if((ch==='\\n'||ch===';')&&depth===0){if(cur.trim())out.push(cur.trim());cur='';continue;}
+    if((ch==='\n'||ch===';')&&depth===0){if(cur.trim())out.push(cur.trim());cur='';continue;}
     cur+=ch;
   }
   if(cur.trim())out.push(cur.trim());
@@ -284,6 +284,7 @@ function num(s){
 }
 function val(s){
   s=s.trim();let m;
+  if(m=s.match(/^\[(=*)\[([\s\S]*)\]\1\]$/))return{t:'p',v:m[2]};
   if(m=s.match(/^\\[(=*)\\[([\\s\\S]*)\\]\\1\\]$/))return{t:'p',v:m[2]};
   if(m=s.match(/^(["'])([\s\S]*)\1$/))return{t:'s',v:m[2]};
   if(s==='true'||s==='false')return{t:'b',v:s==='true'};
