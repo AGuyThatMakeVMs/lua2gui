@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lua 2 Gui — Turn Lua into Roblox UI</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;800&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;700&display=swap">
+<style>
+:root{color-scheme:dark;--bg:#050b07;--pn:#0b1710;--pn2:#112218;--ln:#1f3d2b;--g:#2fa66a;--lg:#a8f0bf;--be:#eadfc6;--mt:#8ea796;--tx:#e8efe9;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#050b07;--tx:#e8efe9}}
+:root[data-theme="dark"]{--bg:#050b07;--tx:#e8efe9}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(900px 500px at 85% -10%,#12402a55,transparent),radial-gradient(700px 400px at -10% 30%,#2fa66a22,transparent),var(--bg);color:var(--tx);font-family:'Space Grotesk',system-ui,-apple-system,Segoe UI,sans-serif;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 18px 60px}
+header{text-align:center;padding:30px 0 26px}
+.logo{display:inline-flex;align-items:center;gap:14px}
+.mark{width:54px;height:54px;border-radius:16px;background:linear-gradient(145deg,var(--lg),var(--g));display:grid;place-items:center;color:#04120a;font:800 22px 'JetBrains Mono',monospace;box-shadow:0 0 40px #2fa66a55}
+h1{font:800 clamp(2.2rem,6vw,3.6rem)/1 'Fraunces',Georgia,serif;margin:0;color:var(--be);letter-spacing:-.02em}
+h1 span{color:var(--lg)}
+.sub{color:var(--mt);max-width:640px;margin:14px auto 0;font-size:1.05rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px}
+.chip{border:1px solid var(--ln);background:var(--pn);color:var(--lg);padding:5px 12px;border-radius:99px;font-size:.82rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:linear-gradient(180deg,var(--pn2),var(--pn));border:1px solid var(--ln);border-radius:18px;padding:16px;min-width:0}
+.card h2{margin:0 0 12px;font:600 1.15rem 'Fraunces',Georgia,serif;color:var(--be);display:flex;align-items:center;gap:8px}
+.card h2 i{width:8px;height:8px;border-radius:50%;background:var(--lg);box-shadow:0 0 10px var(--lg)}
+textarea,pre,.name{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace}
+textarea{width:100%;height:380px;resize:vertical;background:#040a06;color:var(--lg);border:1px solid var(--ln);border-radius:12px;padding:12px;font-size:12.5px;line-height:1.55;outline:none}
+textarea:focus,.name:focus{border-color:var(--g);box-shadow:0 0 0 3px #2fa66a33}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+.btn{font:500 .9rem 'Space Grotesk',system-ui,sans-serif;border:1px solid var(--ln);background:var(--pn);color:var(--be);padding:9px 14px;border-radius:10px;cursor:pointer;transition:.15s}
+.btn:hover{border-color:var(--g);transform:translateY(-1px)}
+.btn.main{background:linear-gradient(135deg,var(--g),#1f7a4d);color:#fff;border-color:transparent;font-weight:700}
+.btn.beige{background:var(--be);color:#14210f;border-color:transparent;font-weight:700}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.name{background:#040a06;border:1px solid var(--ln);color:var(--be);border-radius:10px;padding:9px 12px;width:150px;font-size:.85rem;outline:none}
+.pv{position:relative;overflow:hidden;border-radius:12px;border:1px solid var(--ln);background:linear-gradient(#0000 0 0),repeating-conic-gradient(#0d1b13 0 25%,#0a150e 0 50%) 0 0/24px 24px}
+.stage{position:absolute;left:0;top:0;width:800px;height:450px;transform-origin:0 0;overflow:hidden}
+.g{position:absolute;display:block}
+.t{position:absolute;inset:0;display:flex;pointer-events:none;overflow:hidden;white-space:pre-wrap}
+.empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--mt);font-size:.9rem}
+pre{margin:0;background:#040a06;border:1px solid var(--ln);border-radius:12px;padding:12px;color:var(--lg);font-size:12px;max-height:150px;overflow:auto}
+.warn{margin-top:10px;color:var(--be);font-size:.82rem;opacity:.85}
+.warn div::before{content:"⚠ ";color:#e8c26a}
+.stats{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.stat{flex:1;min-width:90px;background:#040a06;border:1px solid var(--ln);border-radius:12px;padding:8px 12px}
+.stat b{display:block;font:800 1.5rem 'Fraunces',Georgia,serif;color:var(--lg)}
+.stat small{color:var(--mt)}
+.out{margin-top:18px}
+.out textarea{height:150px;color:var(--be);font-size:11px}
+#msg{color:var(--lg);font-size:.88rem;min-height:1.3em;margin-top:8px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+@media(max-width:860px){.steps{grid-template-columns:1fr}}
+.step{background:var(--pn);border:1px solid var(--ln);border-radius:16px;padding:16px}
+.step b{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--be);color:#14210f;font-weight:800;margin-bottom:8px}
+.step h3{margin:0 0 4px;color:var(--lg);font-size:1rem}
+.step p{margin:0;color:var(--mt);font-size:.9rem}
+.note{margin-top:18px;color:var(--mt);font-size:.85rem;border-left:3px solid var(--g);padding:6px 14px}
+.note code{color:var(--be);font-family:'JetBrains Mono',monospace;font-size:.8rem}
+footer{text-align:center;margin-top:34px;color:var(--mt);font-size:.82rem}
+
+/* Motion, polish, and accessibility */
+body{background-attachment:fixed}
+.wrap{animation:pageIn .7s cubic-bezier(.2,.75,.25,1) both}
+header{position:relative}
+header:after{content:"";display:block;width:min(240px,45vw);height:1px;margin:26px auto 0;background:linear-gradient(90deg,transparent,var(--g),transparent)}
+.mark{transition:transform .35s,box-shadow .35s}
+.logo:hover .mark{transform:rotate(-7deg) scale(1.06);box-shadow:0 0 54px #2fa66a88}
+.card,.step{transition:transform .22s,border-color .22s,box-shadow .22s}
+.card:hover{border-color:#2f8054;box-shadow:0 14px 40px #0003}
+.step:hover{transform:translateY(-4px);border-color:var(--g)}
+.btn{transition:transform .18s,background .18s,border-color .18s,box-shadow .18s}
+.btn:hover{box-shadow:0 7px 20px #0004}
+.btn:active{transform:translateY(1px) scale(.98)}
+textarea,pre{transition:border-color .2s,box-shadow .2s}
+.stat b{transition:transform .2s}
+.stat:hover b{transform:translateY(-2px)}
+.chip{transition:background .2s,transform .2s}
+.chip:hover{background:#163b27;transform:translateY(-2px)}
+#msg{transition:opacity .2s}
+@keyframes pageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{opacity:0;transform:translateY(5px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+.g{animation:popIn .22s ease-out both}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+button:focus-visible,.btn:focus-visible{outline:2px solid var(--lg);outline-offset:3px}\n</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="logo"><div class="mark">&lt;/&gt;</div><h1>Lua <span>2</span> Gui</h1></div>
+  <p class="sub">Turn Lua UI scripts into Roblox model files. Paste code, preview your interface live, and export it for Roblox Studio.</p>
+  <div class="chips"><span class="chip">Lua → GUI</span><span class="chip">Live preview</span><span class="chip">.rbxmx export</span><span class="chip">Auto ScreenGui</span><span class="chip">UI components</span></div>
+</header>
+
+<div class="grid">
+  <section class="card">
+    <h2><i></i>Lua source</h2>
+    <textarea id="src" spellcheck="false" placeholder="Paste your Lua UI script here..."></textarea>
+    <div class="row">
+      <button class="btn main" id="go">Convert</button>
+      <button class="btn" id="ex">Load example</button>
+      <button class="btn" id="clr">Clear</button>
+      <label class="btn" for="file">Open .lua</label><input id="file" type="file" accept=".lua,.txt,text/plain" hidden>
+    </div>
+  </section>
+  <section class="card">
+    <h2><i></i>Live UI preview</h2>
+    <div class="pv" id="pv"><div class="stage" id="stage"></div></div>
+    <div class="stats"><div class="stat"><b id="s1">0</b><small>instances</small></div><div class="stat"><b id="s2">0</b><small>properties</small></div><div class="stat"><b id="s3">0</b><small>warnings</small></div></div>
+    <div class="row"><pre id="tree" style="width:100%">—</pre></div>
+    <div class="warn" id="warn"></div>
+  </section>
+</div>
+
+<section class="card out">
+  <h2><i></i>Export for Roblox Studio</h2>
+  <div class="row" style="margin-top:0">
+    <input class="name" id="fname" value="LuaGui" aria-label="File name" maxlength="40">
+    <button class="btn beige" id="dzip" disabled>Download .zip</button>
+    <button class="btn" id="dtxt" disabled>Download .rbxmx</button>
+    <button class="btn" id="cp" disabled>Copy XML</button>
+  </div>
+  <div id="msg"></div>
+  <textarea id="out" readonly spellcheck="false" style="margin-top:8px" placeholder="Your Roblox model XML will appear here."></textarea>
+</section>
+
+<div class="steps">
+  <div class="step"><b>1</b><h3>Paste your script</h3><p>Use <code>Instance.new</code> and properties such as Size, Position, Color3, and Text. The preview updates as you type.</p></div>
+  <div class="step"><b>2</b><h3>Export your model</h3><p>Download the .rbxmx file directly, or get it inside a ZIP archive.</p></div>
+  <div class="step"><b>3</b><h3>Import into Studio</h3><p>In Roblox Studio, right-click <b>StarterGui</b>, choose <b>Insert from File</b>, and select your .rbxmx file.</p></div>
+</div>
+<div class="note">Lua 2 Gui reads supported, static <code>Instance.new</code> declarations and property assignments. It does not run Lua code, loops, functions, or events. Unparented UI objects are placed inside an automatically created <code>ScreenGui</code>. This is a lightweight converter, not a full Lua interpreter.</div>
+<footer>Lua 2 Gui · Built for Roblox creators</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const SAMPLE=`local Gui = Instance.new("ScreenGui")
+Gui.Name = "LuaGui"
+Gui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local Main = Instance.new("Frame")
+Main.Name = "Main"
+Main.Size = UDim2.new(0, 380, 0, 230)
+Main.Position = UDim2.new(0.5, 0, 0.5, 0)
+Main.AnchorPoint = Vector2.new(0.5, 0.5)
+Main.BackgroundColor3 = Color3.fromRGB(10, 24, 16)
+Main.BorderSizePixel = 0
+Main.Parent = Gui
+
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 16)
+Corner.Parent = Main
+
+local Stroke = Instance.new("UIStroke")
+Stroke.Color = Color3.fromRGB(47, 166, 106)
+Stroke.Thickness = 2
+Stroke.Parent = Main
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -40, 0, 50)
+Title.Position = UDim2.new(0, 20, 0, 16)
+Title.BackgroundTransparency = 1
+Title.Text = "Lua 2 Gui"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 30
+Title.TextColor3 = Color3.fromRGB(234, 223, 198)
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Main
+
+local Sub = Instance.new("TextLabel")
+Sub.Size = UDim2.new(1, -40, 0, 40)
+Sub.Position = UDim2.new(0, 20, 0, 70)
+Sub.BackgroundTransparency = 1
+Sub.Text = "Your interface, straight from code."
+Sub.Font = Enum.Font.Gotham
+Sub.TextSize = 16
+Sub.TextColor3 = Color3.fromRGB(168, 240, 191)
+Sub.TextXAlignment = Enum.TextXAlignment.Left
+Sub.Parent = Main
+
+local Btn = Instance.new("TextButton")
+Btn.Size = UDim2.new(0, 160, 0, 46)
+Btn.Position = UDim2.new(0, 20, 1, -66)
+Btn.BackgroundColor3 = Color3.fromRGB(47, 166, 106)
+Btn.BorderSizePixel = 0
+Btn.Text = "Get started"
+Btn.Font = Enum.Font.GothamBold
+Btn.TextSize = 18
+Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+Btn.Parent = Main
+
+local BtnCorner = Instance.new("UICorner")
+BtnCorner.CornerRadius = UDim.new(0, 12)
+BtnCorner.Parent = Btn
+`;
+const T={Image:'c',ZIndex:'i',BorderSizePixel:'i',LayoutOrder:'i'};
+const E={
+Font:{Legacy:0,Arial:1,ArialBold:2,SourceSans:3,SourceSansBold:4,SourceSansLight:5,SourceSansItalic:6,Bodoni:7,Garamond:8,Cartoon:9,Code:10,Highway:11,SciFi:12,Arcade:13,Fantasy:14,Antique:15,SourceSansSemibold:16,Gotham:17,GothamMedium:18,GothamSemibold:18,GothamBold:19,GothamBlack:20,AmaticSC:21,Bangers:22,Creepster:23,FredokaOne:26,LuckiestGuy:32,Nunito:35,Oswald:36,PermanentMarker:38,Roboto:39,RobotoMono:41,Ubuntu:45},
+TextXAlignment:{Left:0,Right:1,Center:2},TextYAlignment:{Top:0,Center:1,Bottom:2},
+FillDirection:{Horizontal:0,Vertical:1},HorizontalAlignment:{Center:0,Left:1,Right:2},VerticalAlignment:{Center:0,Top:1,Bottom:2},
+SortOrder:{Name:0,Custom:1,LayoutOrder:2},ScaleType:{Stretch:0,Slice:1,Tile:2,Fit:3,Crop:4},ZIndexBehavior:{Global:0,Sibling:1},
+ApplyStrokeMode:{Contextual:0,Border:1},BorderMode:{Outline:0,Middle:1,Inset:2}};
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+/* ---------- leitura do Lua ---------- */
+function stmts(src){
+  src=src.replace(/--\[\[[\s\S]*?\]\]/g,'').replace(/--.*$/gm,'');
+  const out=[];let cur='',d=0,q=null;
+  for(const ch of src){
+    if(q){cur+=ch;if(ch===q)q=null;continue}
+    if(ch==='"'||ch==="'"){q=ch;cur+=ch;continue}
+    if('({['.includes(ch))d++;
+    if(')}]'.includes(ch))d--;
+    if((ch==='\n'||ch===';')&&d<=0){out.push(cur.trim());cur='';d=0;continue}
+    cur+=ch;
+  }
+  out.push(cur.trim());
+  return out.filter(Boolean);
+}
+function args(s){
+  const a=[];let c='',d=0,q=null;
+  for(const ch of s){
+    if(q){c+=ch;if(ch===q)q=null;continue}
+    if(ch==='"'||ch==="'"){q=ch;c+=ch;continue}
+    if(ch==='(')d++;
+    if(ch===')')d--;
+    if(ch===','&&d===0){a.push(c.trim());c='';continue}
+    c+=ch;
+  }
+  if(c.trim())a.push(c.trim());
+  return a;
+}
+function num(s){
+  const t=String(s).trim();
+  if(!t || !/^[\d.eE+\-*/()\s]+$/.test(t)) return NaN;
+  // Only allow numeric arithmetic; no eval/Function and no access to page globals.
+  const tokens=t.match(/(?:\d+(?:\.\d*)?|\.\d+)(?:e[+\-]?\d+)?|[()+*/\-]/gi);
+  if(!tokens || tokens.join('').replace(/\s/g,'')!==t.replace(/\s/g,'')) return NaN;
+  let i=0;
+  function expr(){let v=term();while(tokens[i]==='+'||tokens[i]==='-'){const op=tokens[i++],r=term();v=op==='+'?v+r:v-r;}return v;}
+  function term(){let v=factor();while(tokens[i]==='*'||tokens[i]==='/'){const op=tokens[i++],r=factor();if(op==='/'&&r===0)throw Error('division by zero');v=op==='*'?v*r:v/r;}return v;}
+  function factor(){if(tokens[i]==='+'){i++;return factor();}if(tokens[i]==='-'){i++;return -factor();}if(tokens[i]==='('){i++;const v=expr();if(tokens[i++]!==')')throw Error('parenthesis');return v;}const v=Number(tokens[i++]);if(!Number.isFinite(v))throw Error('number');return v;}
+  try{const v=expr();return i===tokens.length&&Number.isFinite(v)?v:NaN;}catch(e){return NaN;}
+}
+function val(s){
+  s=s.trim();let m;
+  if(m=s.match(/^(["'])([\s\S]*)\1$/))return{t:'s',v:m[2]};
+  if(s==='true'||s==='false')return{t:'b',v:s==='true'};
+  if(m=s.match(/^(UDim2|UDim|Vector2|Color3)\.(\w+)\(([\s\S]*)\)$/)){
+    const a=args(m[3]).map(num);
+    if(a.some(isNaN))return null;
+    const k=m[1],f=m[2];
+    if(k==='UDim2'){
+      if(f==='new'&&a.length===4)return{t:'UDim2',v:a};
+      if(f==='fromScale'&&a.length===2)return{t:'UDim2',v:[a[0],0,a[1],0]};
+      if(f==='fromOffset'&&a.length===2)return{t:'UDim2',v:[0,a[0],0,a[1]]};
+    }
+    if(k==='UDim'&&f==='new')return{t:'UDim',v:[a[0]||0,a[1]||0]};
+    if(k==='Vector2'&&f==='new')return{t:'Vector2',v:[a[0]||0,a[1]||0]};
+    if(k==='Color3'){
+      if(f==='fromRGB'&&a.length===3)return{t:'Color3',v:a.map(x=>x/255)};
+      if(f==='new')return{t:'Color3',v:[a[0]||0,a[1]||0,a[2]||0]};
+    }
+    return null;
+  }
+  if(m=s.match(/^Enum\.(\w+)\.(\w+)$/))return{t:'e',en:m[1],v:m[2]};
+  const n=num(s);
+  return isNaN(n)?null:{t:'n',v:n};
+}
+function build(src){
+  const vars={},all=[],warn=[];
+  for(const st of stmts(src)){
+    let m=st.match(/^(?:local\s+)?(\w+)\s*=\s*Instance\.new\(\s*["'](\w+)["']\s*(?:,\s*([\s\S]+?))?\s*\)$/);
+    if(m){const n={cls:m[2],vn:m[1],props:{},kids:[],pref:m[3]?m[3].trim():null};vars[m[1]]=n;all.push(n);continue}
+    m=st.match(/^(\w+)\.(\w+)\s*=\s*([\s\S]+)$/);
+    if(m&&vars[m[1]]){
+      const n=vars[m[1]];
+      if(m[2]==='Parent')n.pref=m[3].trim();
+      else{const v=val(m[3]);if(v)n.props[m[2]]=v;else warn.push('Unsupported value at '+m[1]+'.'+m[2])}
+      continue;
+    }
+    if(!/^(end|do|return)\b/.test(st)&&!/^local\s+\w+(\s*=\s*(game|script|workspace)\b.*)?$/.test(st))
+      warn.push('Ignored statement: '+st.replace(/\s+/g,' ').slice(0,60));
+  }
+  let roots=[];
+  for(const n of all){const p=n.pref&&vars[n.pref];if(p&&p!==n)p.kids.push(n);else roots.push(n)}
+  const loose=roots.filter(n=>n.cls!=='ScreenGui');
+  if(loose.length){
+    roots=roots.filter(n=>n.cls==='ScreenGui');
+    roots.push({cls:'ScreenGui',vn:'LuaGui',props:{Name:{t:'s',v:'LuaGui'}},kids:loose});
+    warn.push('Objects without a ScreenGui: an automatic ScreenGui was created');
+  }
+  return{roots,warn};
+}
+
+/* ---------- XML do Roblox ---------- */
+let rid=0;
+function prop(k,v){
+  const a='name="'+k+'"';
+  switch(v.t){
+    case's':return T[k]==='c'?'<Content '+a+'><url>'+esc(v.v)+'</url></Content>':'<string '+a+'>'+esc(v.v)+'</string>';
+    case'b':return'<bool '+a+'>'+v.v+'</bool>';
+    case'n':return T[k]==='i'?'<int '+a+'>'+Math.round(v.v)+'</int>':'<float '+a+'>'+v.v+'</float>';
+    case'UDim2':return'<UDim2 '+a+'><XS>'+v.v[0]+'</XS><XO>'+Math.round(v.v[1])+'</XO><YS>'+v.v[2]+'</YS><YO>'+Math.round(v.v[3])+'</YO></UDim2>';
+    case'UDim':return'<UDim '+a+'><S>'+v.v[0]+'</S><O>'+Math.round(v.v[1])+'</O></UDim>';
+    case'Vector2':return'<Vector2 '+a+'><X>'+v.v[0]+'</X><Y>'+v.v[1]+'</Y></Vector2>';
+    case'Color3':return'<Color3 '+a+'><R>'+v.v[0]+'</R><G>'+v.v[1]+'</G><B>'+v.v[2]+'</B></Color3>';
+    case'e':{const n=E[v.en]&&E[v.en][v.v];return n==null?'':'<token '+a+'>'+n+'</token>'}
+  }
+  return'';
+}
+function ser(n){
+  let x=n.props.Name?'':'<string name="Name">'+esc(n.vn||n.cls)+'</string>';
+  for(const k in n.props)x+=prop(k,n.props[k]);
+  return'<Item class="'+esc(n.cls)+'" referent="RBX'+(rid++)+'"><Properties>'+x+'</Properties>'+n.kids.map(ser).join('')+'</Item>';
+}
+function toXML(roots){
+  rid=0;
+  return'<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">\n'+roots.map(ser).join('\n')+'\n</roblox>';
+}
+
+/* ---------- preview ---------- */
+const VIS=/^(Frame|TextLabel|TextButton|TextBox|ImageLabel|ImageButton|ScrollingFrame|CanvasGroup)$/;
+const px=(s,o)=>'calc('+s*100+'% + '+o+'px)';
+const col=(c,d,al)=>'rgba('+(c?c.v:d).map(x=>Math.round(x*255)).join(',')+','+al+')';
+function render(n,host){
+  const p=n.props,g=k=>p[k]&&p[k].v;
+  let el=host;
+  if(n.cls!=='ScreenGui'){
+    if(!VIS.test(n.cls))return;
+    el=document.createElement('div');el.className='g';
+    const z=g('Size')||[0,0,0,0],q=g('Position')||[0,0,0,0],a=g('AnchorPoint')||[0,0],s=el.style;
+    s.width=px(z[0],z[1]);s.height=px(z[2],z[3]);s.left=px(q[0],q[1]);s.top=px(q[2],q[3]);
+    s.transform='translate('+(-a[0]*100)+'%,'+(-a[1]*100)+'%) rotate('+(g('Rotation')||0)+'deg)';
+    s.background=col(p.BackgroundColor3,[.64,.63,.65],1-(g('BackgroundTransparency')??0));
+    const bs=p.BorderSizePixel?g('BorderSizePixel'):1;
+    s.border=bs+'px solid '+col(p.BorderColor3,[.1,.16,.21],1);
+    s.boxSizing='border-box';
+    if(p.Visible&&g('Visible')===false)s.display='none';
+    if(p.ZIndex)s.zIndex=g('ZIndex');
+    if(p.ClipsDescendants&&g('ClipsDescendants'))s.overflow='hidden';
+    for(const k of n.kids){
+      const kp=k.props;
+      if(k.cls==='UICorner'){const r=kp.CornerRadius?kp.CornerRadius.v:[0,8];s.borderRadius=r[0]?r[0]*100+'%':r[1]+'px'}
+      if(k.cls==='UIStroke'){s.boxShadow='0 0 0 '+(kp.Thickness?kp.Thickness.v:1)+'px '+col(kp.Color,[0,0,0],1)}
+    }
+    if(/^Text/.test(n.cls)){
+      const t=document.createElement('span');t.className='t';
+      const xa=(p.TextXAlignment&&p.TextXAlignment.v)||'Center',ya=(p.TextYAlignment&&p.TextYAlignment.v)||'Center';
+      const fx={Left:'flex-start',Center:'center',Right:'flex-end'},fy={Top:'flex-start',Center:'center',Bottom:'flex-end'};
+      t.style.justifyContent=fx[xa];t.style.alignItems=fy[ya];t.style.textAlign=xa.toLowerCase();
+      t.style.color=col(p.TextColor3,[.1,.16,.21],1-(g('TextTransparency')??0));
+      t.style.fontSize=(g('TextSize')||14)+'px';
+      const f=(p.Font&&p.Font.v)||'SourceSans';
+      t.style.fontWeight=/Bold|Black/.test(f)?800:400;
+      t.style.fontFamily='system-ui,sans-serif';
+      t.textContent=p.Text?g('Text'):(n.cls==='TextLabel'?'Label':n.cls==='TextButton'?'Button':'');
+      el.appendChild(t);
+    }
+    host.appendChild(el);
+  }
+  n.kids.forEach(c=>render(c,el));
+}
+
+/* ---------- interface ---------- */
+let XML='';
+const cnt=n=>1+n.kids.reduce((a,k)=>a+cnt(k),0);
+const np=n=>Object.keys(n.props).length+n.kids.reduce((a,k)=>a+np(k),0);
+const tree=(n,d)=>'  '.repeat(d)+(d?'└ ':'')+n.cls+'  “'+((n.props.Name&&n.props.Name.v)||n.vn||n.cls)+'”\n'+n.kids.map(k=>tree(k,d+1)).join('');
+function msg(t){$('msg').textContent=t}
+function fit(){const k=$('pv').clientWidth/800;$('stage').style.transform='scale('+k+')';$('pv').style.height=450*k+'px'}
+function run(){
+  const{roots,warn}=build($('src').value);
+  const st=$('stage');st.innerHTML='';
+  if(!roots.length){
+    XML='';$('out').value='';$('tree').textContent='No UI objects detected yet.';
+    st.innerHTML='<div class="empty" style="width:800px;height:450px">Paste a script to preview your UI</div>';
+  }else{
+    XML=toXML(roots);$('out').value=XML;
+    roots.forEach(r=>render(r,st));
+    $('tree').textContent=roots.map(r=>tree(r,0)).join('');
+  }
+  $('s1').textContent=roots.reduce((a,r)=>a+cnt(r),0);
+  $('s2').textContent=roots.reduce((a,r)=>a+np(r),0);
+  $('s3').textContent=warn.length;
+  $('warn').innerHTML=warn.slice(0,6).map(w=>'<div>'+esc(w)+'</div>').join('')+(warn.length>6?'<div>…e mais '+(warn.length-6)+'</div>':'');
+  ['dzip','dtxt','cp'].forEach(i=>$(i).disabled=!XML);
+  fit();
+}
+
+/* zip simples (sem compressão) para entregar o .rbxmx com a extensão certa */
+function crc(b){
+  if(!crc.t)crc.t=Array.from({length:256},(_,n)=>{let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;return c>>>0});
+  let r=-1;for(const x of b)r=crc.t[(r^x)&255]^(r>>>8);
+  return(r^-1)>>>0;
+}
+function zip(name,text){
+  const u16=n=>[n&255,n>>8&255],u32=n=>[n&255,n>>8&255,n>>16&255,n>>>24];
+  const nb=new TextEncoder().encode(name),d=new TextEncoder().encode(text),c=crc(d),L=d.length;
+  const lh=[80,75,3,4,...u16(20),...u16(0),...u16(0),...u16(0),...u16(33),...u32(c),...u32(L),...u32(L),...u16(nb.length),...u16(0),...nb];
+  const cd=[80,75,1,2,...u16(20),...u16(20),...u16(0),...u16(0),...u16(0),...u16(33),...u32(c),...u32(L),...u32(L),...u16(nb.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(0),...nb];
+  const end=[80,75,5,6,...u16(0),...u16(0),...u16(1),...u16(1),...u32(cd.length),...u32(lh.length+L),...u16(0)];
+  return new Blob([new Uint8Array(lh),d,new Uint8Array(cd),new Uint8Array(end)]);
+}
+function saveBlob(filename, blob){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;a.style.display='none';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+async function dl(kind){
+  const nm=($('fname').value.trim().replace(/[^\w\-]+/g,'_')||'LuaGui');
+  try{
+    if(kind==='zip') saveBlob(nm+'.zip',zip(nm+'.rbxmx',XML));
+    else saveBlob(nm+'.rbxmx',new Blob([XML],{type:'application/xml;charset=utf-8'}));
+    msg(kind==='zip'?'ZIP downloaded. Extract it and import '+nm+'.rbxmx into Studio.':'RBXMX file downloaded. Import it into Roblox Studio.');
+  }catch(e){msg('Download failed. Try “Copy XML” instead.');}
+}
+$('go').onclick=run;
+$('ex').onclick=()=>{$('src').value=SAMPLE;run()};
+$('clr').onclick=()=>{$('src').value='';run()};
+$('dzip').onclick=()=>dl('zip');
+$('dtxt').onclick=()=>dl('rbxmx');
+$('cp').onclick=()=>{
+  const ok=()=>msg('XML copied! Paste it into a file ending in .rbxmx.');
+  const fb=()=>{$('out').select();let r=false;try{r=document.execCommand('copy')}catch(e){}msg(r?'XML copied! Save it as a .rbxmx file.':'Select the text box and copy the XML manually.')};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(XML).then(ok,fb);else fb();
+};
+$('file').onchange=async e=>{const f=e.target.files[0];if(f){$('src').value=await f.text();run()}};
+let tm;$('src').oninput=()=>{clearTimeout(tm);tm=setTimeout(run,350)};
+addEventListener('resize',fit);
+$('src').value=SAMPLE;run();
+</script>
+</body>
+</html>
