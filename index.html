@@ -292,6 +292,10 @@ function val(s){
   if(m=s.match(/^\[(=*)\[([\s\S]*)\]\1\]$/))return{t:'p',v:m[2]};
   if(m=s.match(/^(["'])([\s\S]*)\1$/))return{t:'s',v:m[2]};
   if(s==='true'||s==='false')return{t:'b',v:s==='true'};
+  if(m=s.match(/^Color3\.fromHex\(([\s\S]*)\)$/)){
+    const h=args(m[1])[0]?.replace(/["' #]/g,'');
+    if(h&&/^[0-9a-fA-F]{6}$/.test(h))return{t:'Color3',v:[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)/255)};
+  }
   if(m=s.match(/^(UDim2|UDim|Vector2|Color3)\.(\w+)\(([\s\S]*)\)$/)){
     const a=args(m[3]).map(num);
     if(a.some(isNaN))return null;
@@ -326,8 +330,12 @@ function build(src){
       else{const v=val(m[3]);if(v){if(m[2]==='Source'&&v.t==='s')v.t='p';n.props[m[2]]=v;}else warn.push('Unsupported value at '+m[1]+'.'+m[2])}
       continue;
     }
+    if(/:Connect\s*\(|\bfunction\b|\btask\.(wait|spawn|delay)\b|\b(TweenService|RunService)\b/.test(st)){
+      warn.push('Runtime logic is not previewed: '+st.replace(/\s+/g,' ').slice(0,52));
+      continue;
+    }
     if(!/^(end|do|return)\b/.test(st)&&!/^local\s+\w+(\s*=\s*(game|script|workspace)\b.*)?$/.test(st))
-      warn.push('Ignored statement: '+st.replace(/\s+/g,' ').slice(0,60));
+      warn.push('Unsupported statement: '+st.replace(/\s+/g,' ').slice(0,60));
   }
   let roots=[];
   for(const n of all){const p=n.pref&&vars[n.pref];if(p&&p!==n)p.kids.push(n);else roots.push(n)}
