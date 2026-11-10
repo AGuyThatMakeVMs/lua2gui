@@ -285,7 +285,6 @@ function num(s){
 function val(s){
   s=s.trim();let m;
   if(m=s.match(/^\[(=*)\[([\s\S]*)\]\1\]$/))return{t:'p',v:m[2]};
-  if(m=s.match(/^\\[(=*)\\[([\\s\\S]*)\\]\\1\\]$/))return{t:'p',v:m[2]};
   if(m=s.match(/^(["'])([\s\S]*)\1$/))return{t:'s',v:m[2]};
   if(s==='true'||s==='false')return{t:'b',v:s==='true'};
   if(m=s.match(/^(UDim2|UDim|Vector2|Color3)\.(\w+)\(([\s\S]*)\)$/)){
