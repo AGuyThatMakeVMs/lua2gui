@@ -504,7 +504,7 @@ function build(src){
   // Preserve runtime callbacks and other non-visual logic that the static
   // UI parser cannot rebuild as individual Roblox instances. Keep it in a
   // ModuleScript so importing the model never executes the original source.
-  const hasRuntimeLogic=/(?:\\.Connect\\s*\\(|\\bfunction\\b|\\btask\\.(?:wait|spawn|delay)\\b|\\b(?:MouseButton1Click|MouseButton2Click|Activated|InputBegan|InputEnded|Touched)\\s*[:=])/.test(src);
+  const hasRuntimeLogic=/(?:\.Connect\s*\(|\bfunction\b|\btask\.(?:wait|spawn|delay)\b|\b(?:MouseButton1Click|MouseButton2Click|Activated|InputBegan|InputEnded|Touched)\s*[:=])/.test(src);
   if(hasRuntimeLogic&&src.trim()){
     const hasExactSource=(function scan(n){return (['LocalScript','Script','ModuleScript'].includes(n.cls)&&n.props.Source&&n.props.Source.v===src)||n.kids.some(scan)})(roots[0]||{kids:[]});
     if(!hasExactSource){
