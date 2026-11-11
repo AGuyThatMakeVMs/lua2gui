@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
+
 Sitemap: https://lua2gui.pages.dev/sitemap.xml
