@@ -147,6 +147,36 @@ body{overflow-x:hidden;-webkit-text-size-adjust:100%}
 @media(max-width:360px){.wrap{padding-left:8px;padding-right:8px}.preview-tools label{flex-basis:100%}.row>.btn,.row>label.btn{flex-basis:100%}.stats{grid-template-columns:1fr 1fr}}
 @media(hover:none){.card:hover,.step:hover,.btn:hover{transform:none;box-shadow:none}}
 
+
+/* Professional visual preview workspace */
+.preview-tools{gap:9px;padding:10px;background:#07120b;border:1px solid var(--ln);border-radius:12px}
+.preview-tools output{font:600 .75rem 'JetBrains Mono',monospace;color:var(--lg);min-width:38px}
+.preview-tools .view-check{display:flex;align-items:center;gap:5px}
+.preview-tools input[type=checkbox]{accent-color:var(--g)}
+.pv{min-height:160px;display:flex;align-items:flex-start;justify-content:flex-start;overflow:auto;overscroll-behavior:contain;max-height:72vh;scrollbar-color:#2f8054 #07120b}
+.pv.no-grid{background:#101713!important;background-image:none!important}
+.pv.bg-dark{background:#101713!important;background-image:none!important}
+.pv.bg-light{background:#dce5df!important;background-image:none!important}
+.device-shell{flex:none;transform-origin:top left;transition:width .18s,height .18s}
+.stage{background:transparent}
+.g{cursor:pointer;transition:outline-color .12s,filter .12s}
+.g:hover{outline:1px dashed #8af0b4;outline-offset:1px}
+.g.is-selected{outline:2px solid #38e887!important;outline-offset:2px;filter:drop-shadow(0 0 5px #38e88766);z-index:99999!important}
+.preview-workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:12px}
+.inspector-panel{min-width:0;max-height:260px;overflow:hidden;border:1px solid var(--ln);border-radius:12px;background:#07120b}
+.panel-head{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--ln);font:700 .7rem 'JetBrains Mono',monospace;letter-spacing:.08em;color:var(--lg)}
+.panel-head span{color:var(--mt);font-weight:400}
+.object-tree,.inspector-content{padding:8px;overflow:auto;max-height:212px}
+.tree-item{display:flex;width:100%;align-items:center;gap:8px;text-align:left;background:transparent;color:var(--tx);border:1px solid transparent;border-radius:7px;padding:6px 8px;font: .78rem 'JetBrains Mono',monospace;cursor:pointer}
+.tree-item:hover,.tree-item.active{background:#153322;border-color:#2f8054;color:var(--lg)}
+.tree-item .tree-class{color:var(--mt);font-size:.68rem;margin-left:auto}
+.tree-indent{display:inline-block;flex:none}
+.prop-row{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:8px;padding:6px 4px;border-bottom:1px solid #183021;font-size:.75rem}
+.prop-row span:first-child{color:var(--mt);overflow-wrap:anywhere}
+.prop-row span:last-child{color:var(--be);font-family:'JetBrains Mono',monospace;overflow-wrap:anywhere}
+.panel-empty{padding:16px 8px;color:var(--mt);font-size:.78rem;text-align:center}
+@media(max-width:600px){.preview-workspace{grid-template-columns:1fr}.inspector-panel{max-height:220px}.object-tree,.inspector-content{max-height:170px}.pv{max-height:55vh}.preview-tools label{flex:1 1 40%}.preview-tools #fullBtn{flex:1 1 auto}}
+
 /* Search-friendly guide and FAQ */
 .seo-content{margin-top:22px;padding:clamp(18px,3vw,28px);background:linear-gradient(180deg,var(--pn2),var(--pn));border:1px solid var(--ln);border-radius:18px}
 .seo-content h2,.seo-content h3{color:var(--be);font-family:'Fraunces',Georgia,serif}
@@ -182,9 +212,20 @@ body{overflow-x:hidden;-webkit-text-size-adjust:100%}
   </section>
   <section class="card">
     <h2><i></i>Live UI preview</h2>
-    <div class="preview-tools"><label>Device <select id="device"><option value="desktop">Desktop · 16:9</option><option value="phone">Phone · portrait</option><option value="tablet">Tablet</option></select></label><label>Zoom <input id="zoom" type="range" min="35" max="110" value="100"></label><button class="btn" id="fitBtn" type="button">Fit</button></div>
+    <div class="preview-tools">
+      <label>Device <select id="device"><option value="desktop">Desktop · 16:9</option><option value="phone">Phone · portrait</option><option value="tablet">Tablet</option></select></label>
+      <label>Zoom <input id="zoom" type="range" min="25" max="150" value="100"><output id="zoomValue">100%</output></label>
+      <button class="btn" id="fitBtn" type="button">Fit canvas</button>
+      <label class="view-check"><input type="checkbox" id="gridToggle" checked> Grid</label>
+      <label>Background <select id="canvasBg"><option value="checker">Checker</option><option value="dark">Dark</option><option value="light">Light</option></select></label>
+      <button class="btn" id="fullBtn" type="button">Fullscreen</button>
+    </div>
     <div class="pv" id="pv"><div class="device-shell" id="deviceShell"><div class="stage" id="stage"></div></div></div>
-    <div class="preview-hint">Static preview only. Original scripts can be included in the export, but are not run in your browser.</div>
+    <div class="preview-hint">Visual simulation · Select an element to inspect its properties. Luau runtime code is not executed.</div>
+    <div class="preview-workspace">
+      <section class="inspector-panel"><div class="panel-head">OBJECT HIERARCHY <span id="objectCount">0</span></div><div id="objectTree" class="object-tree"><div class="panel-empty">No objects yet</div></div></section>
+      <section class="inspector-panel"><div class="panel-head">PROPERTIES <span id="selectedClass">NONE</span></div><div id="inspector" class="inspector-content"><div class="panel-empty">Select an element in the canvas or hierarchy.</div></div></section>
+    </div>
     <div class="stats"><div class="stat"><b id="s1">0</b><small>instances</small></div><div class="stat"><b id="s2">0</b><small>properties</small></div><div class="stat"><b id="s4">0</b><small>scripts</small></div><div class="stat"><b id="s3">0</b><small>warnings</small></div></div>
     <div class="row"><pre id="tree" style="width:100%">—</pre></div>
     <div class="warn" id="warn"></div>
@@ -494,12 +535,13 @@ function toXML(roots){
 const VIS=/^(Frame|TextLabel|TextButton|TextBox|ImageLabel|ImageButton|ScrollingFrame|CanvasGroup|ViewportFrame|VideoFrame)$/;
 const px=(s,o)=>'calc('+s*100+'% + '+o+'px)';
 const col=(c,d,al)=>'rgba('+(c?c.v:d).map(x=>Math.round(x*255)).join(',')+','+al+')';
+let previewNodeId=0, previewNodes=[];
 function render(n,host){
   const p=n.props,g=k=>p[k]&&p[k].v;
   let el=host;
   if(n.cls!=='ScreenGui'){
     if(!VIS.test(n.cls))return;
-    el=document.createElement('div');el.className='g';
+    el=document.createElement('div');el.className='g';el.dataset.nodeId=String(previewNodeId++);n._previewId=Number(el.dataset.nodeId);previewNodes.push(n);
     const z=g('Size')||[0,0,0,0],q=g('Position')||[0,0,0,0],a=g('AnchorPoint')||[0,0],s=el.style;
     const inLayout=host!==$('stage')&&(host.style.display==='flex'||host.style.display==='grid');
     s.position=inLayout?'relative':'absolute';s.width=px(z[0],z[1]);s.height=px(z[2],z[3]);s.left=inLayout?'auto':px(q[0],q[1]);s.top=inLayout?'auto':px(q[2],q[3]);
@@ -554,7 +596,7 @@ const scriptCount=n=>((n.cls==='LocalScript'||n.cls==='Script'||n.cls==='ModuleS
 function msg(t){$('msg').textContent=t}
 let view={w:800,h:450,zoom:1};
 function setDevice(){const mode=$('device').value;view=mode==='phone'?{w:390,h:844,zoom:1}:mode==='tablet'?{w:768,h:1024,zoom:1}:{w:800,h:450,zoom:1};const sh=$('deviceShell'),st=$('stage');sh.className='device-shell '+(mode==='desktop'?'':mode);sh.style.width=view.w+'px';sh.style.height=view.h+'px';st.style.width=view.w+'px';st.style.height=view.h+'px';fit()}
-function fit(){const scale=Math.min($('pv').clientWidth/view.w,520/view.h)*view.zoom;$('stage').style.transform='scale('+scale+')';$('deviceShell').style.width=view.w*scale+'px';$('deviceShell').style.height=view.h*scale+'px';$('pv').style.height=view.h*scale+'px'}
+function fit(){const scale=Math.min($('pv').clientWidth/view.w,680/view.h)*view.zoom;$('stage').style.transform='scale('+scale+')';$('deviceShell').style.width=view.w*scale+'px';$('deviceShell').style.height=view.h*scale+'px';$('pv').style.height=Math.max(180,view.h*scale)+'px';$('zoomValue').textContent=$('zoom').value+'%'}
 function run(){
   const{roots,warn}=build($('src').value);
   const source=$('src').value;
@@ -562,7 +604,7 @@ function run(){
     const hasSource=roots.some(function scan(n){return ((n.cls==='LocalScript'||n.cls==='Script'||n.cls==='ModuleScript')&&n.props.Source)||n.kids.some(scan)});
     if(!hasSource){const target=roots.find(r=>r.cls==='ScreenGui')||roots[0];target.kids.push({cls:'LocalScript',vn:'Lua2GuiSource',props:{Name:{t:'s',v:'Lua2GuiSource'},Source:{t:'p',v:source}},kids:[]});warn.push('Original source added as a LocalScript. It may execute when placed in a runnable Roblox location.');}
   }
-  const st=$('stage');st.innerHTML='';
+  const st=$('stage');st.innerHTML='';previewNodeId=0;previewNodes=[];
   if(!roots.length){
     XML='';$('out').value='';$('tree').textContent='No UI objects detected yet.';
     st.innerHTML='<div class="empty" style="width:800px;height:450px">Paste a script to preview your UI</div>';
@@ -571,6 +613,7 @@ function run(){
     roots.forEach(r=>render(r,st));
     $('tree').textContent=roots.map(r=>tree(r,0)).join('');
   }
+  buildObjectTree(roots);
   $('s1').textContent=roots.reduce((a,r)=>a+cnt(r),0);
   $('s2').textContent=roots.reduce((a,r)=>a+np(r),0);
   $('s3').textContent=warn.length;
@@ -611,6 +654,48 @@ async function dl(kind){
     msg(kind==='zip'?'ZIP downloaded. Extract it and import '+nm+'.rbxmx into Studio.':kind==='lua'?'Original Luau source downloaded as '+nm+'.lua.':'RBXMX file downloaded. Import it into Roblox Studio.');
   }catch(e){msg('Download failed. Try “Copy XML” instead.');}
 }
+function displayValue(v){
+  if(v===null||v===undefined)return '—';
+  if(Array.isArray(v))return v.map(x=>typeof x==='number'?Number(x.toFixed(3)):x).join(', ');
+  if(typeof v==='object')return v.v!==undefined?displayValue(v.v):JSON.stringify(v);
+  return String(v);
+}
+function buildObjectTree(roots){
+  const treeHost=$('objectTree');treeHost.innerHTML='';
+  const nodes=[];
+  function walk(n,depth){nodes.push({n,depth});n.kids.forEach(k=>walk(k,depth+1))}
+  roots.forEach(n=>walk(n,0));
+  $('objectCount').textContent=nodes.length+' objects';
+  if(!nodes.length){treeHost.innerHTML='<div class="panel-empty">No objects detected</div>';$('inspector').innerHTML='<div class="panel-empty">Paste a supported UI script to inspect properties.</div>';$('selectedClass').textContent='NONE';return}
+  nodes.forEach(({n,depth})=>{
+    const b=document.createElement('button');b.type='button';b.className='tree-item';b.dataset.nodeId=n._previewId===undefined?'':String(n._previewId);
+    b.style.paddingLeft=(8+depth*14)+'px';
+    const name=(n.props.Name&&n.props.Name.v)||n.vn||n.cls;
+    b.innerHTML='<span>▰</span><span>'+esc(name)+'</span><span class="tree-class">'+esc(n.cls)+'</span>';
+    b.addEventListener('click',()=>selectPreviewNode(n));
+    treeHost.appendChild(b);
+  });
+  $('inspector').innerHTML='<div class="panel-empty">Tap an element in the canvas or hierarchy.</div>';
+  $('selectedClass').textContent='NONE';
+}
+function selectPreviewNode(n){
+  document.querySelectorAll('.g.is-selected').forEach(el=>el.classList.remove('is-selected'));
+  document.querySelectorAll('.tree-item.active').forEach(el=>el.classList.remove('active'));
+  const el=n._previewId!==undefined?document.querySelector('.g[data-node-id="'+n._previewId+'"]'):null;
+  if(el)el.classList.add('is-selected');
+  document.querySelectorAll('.tree-item').forEach(b=>{if(b.dataset.nodeId===String(n._previewId))b.classList.add('active')});
+  $('selectedClass').textContent=n.cls;
+  const props={Name:(n.props.Name&&n.props.Name.v)||n.vn||n.cls,...Object.fromEntries(Object.entries(n.props).filter(([k])=>k!=='Name').map(([k,v])=>[k,v.v]))};
+  const rows=Object.entries(props).map(([k,v])=>'<div class="prop-row"><span>'+esc(k)+'</span><span>'+esc(displayValue(v))+'</span></div>').join('');
+  $('inspector').innerHTML=rows||'<div class="panel-empty">No properties assigned.</div>';
+}
+$('stage').addEventListener('click',e=>{
+  const el=e.target.closest('.g');if(!el)return;
+  const n=previewNodes.find(x=>String(x._previewId)===el.dataset.nodeId);if(n)selectPreviewNode(n);
+});
+$('gridToggle').onchange=()=>{$('pv').classList.toggle('no-grid',!$('gridToggle').checked)};
+$('canvasBg').onchange=()=>{$('pv').classList.remove('bg-dark','bg-light');if($('canvasBg').value==='dark')$('pv').classList.add('bg-dark');if($('canvasBg').value==='light')$('pv').classList.add('bg-light')};
+$('fullBtn').onclick=()=>{const p=$('pv');if(!document.fullscreenElement&&p.requestFullscreen)p.requestFullscreen();else if(document.exitFullscreen)document.exitFullscreen()};
 $('go').onclick=run;
 $('ex').onclick=()=>{$('src').value=SAMPLE;run()};
 $('clr').onclick=()=>{$('src').value='';run()};
@@ -625,7 +710,7 @@ $('cp').onclick=()=>{
 $('file').onchange=async e=>{const f=e.target.files[0];if(f){$('src').value=await f.text();run()}};
 let tm;$('src').oninput=()=>{clearTimeout(tm);tm=setTimeout(run,350)};
 $('device').onchange=()=>{setDevice();run()};
-$('zoom').oninput=()=>{view.zoom=Number($('zoom').value)/100;fit()};
+$('zoom').oninput=()=>{view.zoom=Number($('zoom').value)/100;$('zoomValue').textContent=$('zoom').value+'%';fit()};
 $('fitBtn').onclick=()=>{$('zoom').value=100;view.zoom=1;fit()};
 $('includeRuntime').onchange=run;
 addEventListener('resize',fit);
