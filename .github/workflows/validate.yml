@@ -1,0 +1,24 @@
+name: Validate static app
+on:
+  push:
+    branches: [main, studio-workspace-redesign]
+  pull_request:
+    branches: [main]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check JavaScript syntax
+        run: node --check assets/js/app.js
+      - name: Verify required static assets
+        run: |
+          test -s index.html
+          test -s assets/css/app.css
+          test -s assets/js/app.js
+          grep -q 'assets/css/app.css' index.html
+          grep -q 'assets/js/app.js' index.html
+          grep -q 'discord.gg/hVEvfsyXZ5' index.html
