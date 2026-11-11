@@ -190,6 +190,18 @@ body{overflow-x:hidden;-webkit-text-size-adjust:100%}
 .seo-content summary{color:var(--lg);font-weight:700;cursor:pointer}
 .seo-content details p{margin:8px 0 0}
 
+/* Community support and feature suggestions */
+.community{margin-top:22px;padding:clamp(18px,3vw,28px);border:1px solid #286743;border-radius:18px;background:radial-gradient(600px 220px at 90% 0%,#2fa66a22,transparent),linear-gradient(180deg,var(--pn2),var(--pn))}
+.community-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px}
+.community h2{margin:0;color:var(--be);font:600 1.5rem 'Fraunces',Georgia,serif}
+.community-intro{margin:7px 0 0;color:var(--mt);max-width:650px;font-size:.94rem}
+.community-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+.community-item{padding:14px;border:1px solid var(--ln);border-radius:13px;background:#040a0680;min-width:0}
+.community-item b{display:block;color:var(--lg);margin-bottom:4px}
+.community-item p{margin:0;color:var(--mt);font-size:.88rem}
+.community .btn{white-space:normal;text-align:center}
+@media(max-width:560px){.community-grid{grid-template-columns:1fr}.community-top{align-items:stretch}.community-top .btn{width:100%}}
+
 </style>
 </head>
 <body>
@@ -294,6 +306,26 @@ body{overflow-x:hidden;-webkit-text-size-adjust:100%}
     <summary>Where can I learn about Roblox interface objects?</summary>
     <p>Read the <a href="https://create.roblox.com/docs/ui" target="_blank" rel="noopener noreferrer">official Roblox Creator Hub UI documentation</a> for ScreenGui, Frames, text objects, layouts, and interface behavior.</p>
   </details>
+</section>
+
+<section class="community" aria-labelledby="communityTitle">
+  <div class="community-top">
+    <div>
+      <h2 id="communityTitle">Discord Community</h2>
+      <p class="community-intro">Need help with Lua2Gui or have an idea to improve it? Join the community to ask questions, report bugs, and suggest new features.</p>
+    </div>
+    <a class="btn main" href="https://discord.gg/hVEvfsyXZ5" target="_blank" rel="noopener noreferrer" aria-label="Join the Lua2Gui Discord community">Join Discord ↗</a>
+  </div>
+  <div class="community-grid">
+    <div class="community-item">
+      <b>Feature suggestions</b>
+      <p>Share ideas for new converter features, preview tools, and improvements.</p>
+    </div>
+    <div class="community-item">
+      <b>Help & support</b>
+      <p>Ask questions, report problems, and get help using Lua2Gui.</p>
+    </div>
+  </div>
 </section>
 
 <footer>Lua 2 Gui · Built for Roblox creators</footer>
