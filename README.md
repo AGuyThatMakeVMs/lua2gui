@@ -10,6 +10,13 @@ A free browser-based Roblox UI converter. Paste or open supported Lua/Luau UI co
 - `assets/icons/` — app icons.
 - `assets/images/` — visual assets.
 - `docs/ARCHITECTURE.md` — architecture and safety notes.
+- `CHANGELOG.md` — history of updates and fixes.
+
+## Update history
+
+See [CHANGELOG.md](CHANGELOG.md) for new features, improvements, fixes, and maintenance updates.
+
+**Project maintenance rule:** Every future site update must add a dated entry to `CHANGELOG.md` and keep this README's project structure and feature descriptions accurate. Entries should summarize what changed, not claim features that were not implemented.
 
 ## Run locally
 
