@@ -6,6 +6,28 @@ All notable Lua2Gui updates are documented here, newest first.
 
 - Future updates will be recorded here before or alongside implementation.
 
+## [2026-11-13]
+
+### Added
+- Added the UI Library Hub with six original Roblox Luau starter components.
+- Added live search and category filters for panels, controls, and feedback patterns.
+- Added one-click insertion of component source into the main editor.
+- Expanded GitHub Actions validation to syntax-check the new library module and verify its page wiring.
+
+### Improved
+- Added a responsive component-card layout with empty-search feedback and accessible labels.
+- Kept the component catalog in its own `assets/js/library.js` module instead of expanding the converter core.
+- Updated project documentation to describe the new library module and workflow.
+
+### Preserved
+- Kept the existing parser, static preview, object inspector, RBXMX/ZIP export, and Discord community link.
+- Kept the site account-free. No login or signup flow was added.
+
+### Notes
+- The new entries are starter templates, not complete third-party UI frameworks such as Rayfield or Fluent.
+- The preview remains static and does not execute Luau or Roblox runtime behavior.
+- Gemini integration is not enabled yet because no API key or protected Cloudflare backend has been configured.
+
 ## [2026-11-11]
 
 ### Added
