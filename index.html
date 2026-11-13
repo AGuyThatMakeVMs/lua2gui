@@ -87,6 +87,27 @@
   </section>
 </div>
 
+
+<section class="library-hub" id="libraryHub" aria-labelledby="libraryTitle">
+  <div class="library-heading">
+    <div><p class="eyebrow">COMPONENT LIBRARY</p><h2 id="libraryTitle">UI Library Hub</h2><p>Ready-to-edit Roblox UI patterns. Search a component, preview its purpose, and insert its Luau starter code into the editor.</p></div>
+    <span class="library-count" id="libraryCount">6 components</span>
+  </div>
+  <div class="library-controls">
+    <label class="library-search"><span aria-hidden="true">⌕</span><input id="librarySearch" type="search" placeholder="Search components..." autocomplete="off" aria-label="Search UI components"></label>
+    <div class="library-filters" role="group" aria-label="Filter components">
+      <button class="library-filter active" type="button" data-filter="all">All</button>
+      <button class="library-filter" type="button" data-filter="panels">Panels</button>
+      <button class="library-filter" type="button" data-filter="controls">Controls</button>
+      <button class="library-filter" type="button" data-filter="feedback">Feedback</button>
+    </div>
+  </div>
+  <div class="library-grid" id="libraryGrid" aria-live="polite">
+    <div class="library-loading">Loading component collection...</div>
+  </div>
+  <p class="library-footnote">These are original starter templates, not bundled third-party frameworks. They use Roblox Instances and supported properties. Review and test every script in Roblox Studio.</p>
+</section>
+
 <section class="card out">
   <h2><i></i>Export for Roblox Studio</h2>
   <div class="row" style="margin-top:0">
@@ -175,5 +196,6 @@
 </div>
 
 <script src="assets/js/app.js" defer></script>
+<script src="assets/js/library.js" defer></script>
 </body>
 </html>
