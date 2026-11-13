@@ -12,6 +12,7 @@ All notable Lua2Gui updates are documented here, newest first.
 - Added the UI Library Hub with six original Roblox Luau starter components.
 - Added live search and category filters for panels, controls, and feedback patterns.
 - Added one-click insertion of component source into the main editor.
+- Expanded GitHub Actions validation to syntax-check the new library module and verify its page wiring.
 
 ### Improved
 - Added a responsive component-card layout with empty-search feedback and accessible labels.
