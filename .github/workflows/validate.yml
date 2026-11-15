@@ -1,7 +1,7 @@
 name: Validate static app
 on:
   push:
-    branches: [main, studio-workspace-redesign]
+    branches: [main, studio-workspace-redesign, studio-sidebar-watermark]
   pull_request:
     branches: [main]
 jobs:
@@ -26,4 +26,8 @@ jobs:
           grep -q 'assets/js/app.js' index.html
           grep -q 'assets/js/library.js' index.html
           grep -q 'id="libraryHub"' index.html
+          grep -q 'id="appSidebar"' index.html
+          grep -q 'id="sidebarToggle"' index.html
+          grep -q 'addLua2GuiWatermark' assets/js/app.js
+          grep -q 'flaticon.com/uicons' index.html
           grep -q 'discord.gg/hVEvfsyXZ5' index.html
