@@ -25,7 +25,7 @@ All notable Lua2Gui updates are documented here, newest first.
 - index.html, assets/css/app.css, assets/js/app.js, README.md, CHANGELOG.md, docs/ARCHITECTURE.md, .github/workflows/validate.yml.
 
 ### Test results
-- Pending GitHub Actions validation for this branch.
+- Passed: GitHub Actions validation run #9 succeeded, including JavaScript syntax checks and required asset/navigation/watermark checks.
 
 ### Known issues
 - Flaticon icon fonts require an internet connection.
