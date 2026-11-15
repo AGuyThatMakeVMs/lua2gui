@@ -9,6 +9,7 @@ A free browser-based Roblox UI converter. Paste or open supported Lua/Luau UI co
 - `assets/js/app.js` — parser, static preview renderer, hierarchy inspector, and RBXMX/ZIP export.
 - `assets/js/library.js` — searchable component catalog with ready-to-insert Roblox Luau starter templates.
 - Flaticon Uicons Bold Rounded and Solid Rounded icon fonts — navigation and tool icons, credited in the sidebar.
+- `favicon.svg` — custom Lua 2 Gui neon-green code-mark favicon, based on the supplied brand artwork.
 - `assets/icons/` — app icons.
 - `assets/images/` — visual assets.
 - `docs/ARCHITECTURE.md` — architecture and safety notes.
