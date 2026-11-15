@@ -6,6 +6,21 @@ All notable Lua2Gui updates are documented here, newest first.
 
 - Future updates will be recorded here before or alongside implementation.
 
+## [2026-11-15] Brand icon
+
+### Added
+- Replaced the generic browser favicon with a bold neon-green code mark matching the supplied Lua 2 Gui logo artwork on a black rounded-square background.
+- Added an Apple touch icon reference and refreshed the favicon cache version.
+
+### Files changed
+- `favicon.svg`, `index.html`, `README.md`, `CHANGELOG.md`.
+
+### Test results
+- Pending GitHub Actions validation and Cloudflare Pages deployment.
+
+### Known issues
+- Some browsers may cache the previous favicon until the page is refreshed or the browser cache updates.
+
 ## [2026-11-15]
 
 ### Added
