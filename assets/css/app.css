@@ -231,3 +231,48 @@ header .chips{justify-content:flex-start;margin-top:13px}
 .library-loading{color:var(--mt);font-size:.85rem;padding:15px}
 @media(max-width:850px){.library-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.library-grid{grid-template-columns:1fr}.library-heading{align-items:flex-start}.library-count{font-size:.62rem}.library-controls{align-items:stretch}.library-filters{width:100%}.library-filter{flex:1}.library-card{padding:12px}}
+
+/* ChatGPT-style responsive workspace navigation */
+.app-shell{min-height:100vh;display:flex;align-items:stretch}
+.app-sidebar{position:sticky;top:0;display:flex;flex:0 0 248px;flex-direction:column;width:248px;height:100vh;min-height:560px;padding:18px 13px 14px;background:linear-gradient(180deg,#09150e,#061009);border-right:1px solid #1d3928;z-index:30}
+.sidebar-brand{display:flex;align-items:center;gap:11px;padding:4px 8px 21px;color:var(--tx);text-decoration:none}
+.sidebar-brand-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#b7f4c9,#2fa66a);color:#06140b;font:800 .78rem 'JetBrains Mono',monospace;box-shadow:0 5px 18px #2fa66a33}
+.sidebar-brand b{display:block;font-size:.95rem;letter-spacing:-.02em}
+.sidebar-brand small{display:block;margin-top:2px;color:#789984;font:600 .56rem 'JetBrains Mono',monospace;letter-spacing:.12em}
+.sidebar-new{display:flex;align-items:center;gap:10px;min-height:43px;padding:0 11px;border:1px solid #315d40;border-radius:11px;background:linear-gradient(135deg,#153722,#0e2417);color:#c9f5d6;text-decoration:none;font-size:.83rem;font-weight:700;transition:.18s}
+.sidebar-new:hover{border-color:#54c783;background:#1a442c}
+.sidebar-new i{font-size:1rem}.sidebar-new kbd{margin-left:auto;color:#8db59a;font:.7rem 'JetBrains Mono',monospace}
+.sidebar-section-label{padding:22px 9px 8px;color:#64816e;font:700 .62rem 'JetBrains Mono',monospace;letter-spacing:.13em}
+.sidebar-tools-label{padding-top:20px}
+.sidebar-nav{display:grid;gap:4px}
+.sidebar-link{display:flex;align-items:center;gap:11px;min-height:40px;padding:0 10px;border:1px solid transparent;border-radius:9px;color:#a4b9aa;text-decoration:none;font-size:.82rem;transition:background .16s,border-color .16s,color .16s}
+.sidebar-link i{width:17px;text-align:center;font-size:.95rem;color:#83ad90}
+.sidebar-link:hover,.sidebar-link.active{background:#11291a;border-color:#244b32;color:#e6f7eb}
+.sidebar-link.active i{color:#9cebb5}
+.sidebar-count{margin-left:auto;padding:2px 7px;border:1px solid #2a5037;border-radius:99px;color:#a5dcb5;font:.65rem 'JetBrains Mono',monospace}
+.sidebar-spacer{flex:1}
+.sidebar-status{display:flex;align-items:center;gap:9px;padding:12px 9px;border:1px solid #1c3927;border-radius:10px;background:#08130c}
+.sidebar-status-dot{width:8px;height:8px;flex:none;border-radius:50%;background:#4bd487;box-shadow:0 0 12px #4bd48788}
+.sidebar-status b,.sidebar-status small{display:block}.sidebar-status b{font-size:.74rem;color:#d8e9dc}.sidebar-status small{margin-top:2px;color:#77917f;font-size:.66rem}
+.sidebar-credit{display:flex;align-items:center;gap:6px;padding:12px 8px 0;color:#718d7b;text-decoration:none;font-size:.65rem}.sidebar-credit:hover{color:#b8e9c7}
+.workspace{flex:1;min-width:0}
+.workspace>.wrap{max-width:1440px;padding-top:22px}
+.mobile-topbar{display:none}
+.sidebar-scrim{display:none}
+#converter,#libraryHub,#exportCenter,#guide,#previewTools,#communityTitle{scroll-margin-top:18px}
+@media(min-width:901px){.workspace>.wrap{padding-left:clamp(18px,2vw,34px);padding-right:clamp(18px,2vw,34px)}}
+@media(max-width:900px){
+ .app-shell{display:block}
+ .mobile-topbar{position:sticky;top:0;z-index:25;display:flex;align-items:center;justify-content:space-between;min-height:54px;padding:7px 12px;border-bottom:1px solid #1e3b29;background:#07120df2;backdrop-filter:blur(16px)}
+ .mobile-menu-button{display:flex;align-items:center;gap:11px;min-height:40px;padding:0 9px;border:1px solid #254631;border-radius:10px;background:#0d2014;color:#e4f4e8;font:700 .9rem 'Space Grotesk',sans-serif}
+ .mobile-menu-button i{font-size:1.1rem;color:#a5edbb}
+ .mobile-topbar-meta{color:#7da28a;font:700 .65rem 'JetBrains Mono',monospace;letter-spacing:.1em}
+ .app-sidebar{position:fixed;top:0;left:0;width:min(292px,84vw);height:100dvh;min-height:0;transform:translateX(-105%);transition:transform .24s cubic-bezier(.2,.8,.2,1);box-shadow:18px 0 55px #0008}
+ .app-sidebar.is-open{transform:translateX(0)}
+ .sidebar-scrim{position:fixed;inset:0;z-index:29;display:block;width:100%;height:100%;padding:0;border:0;background:#020805a8;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s}
+ .sidebar-scrim.is-visible{opacity:1;visibility:visible}
+ .workspace>.wrap{padding-top:12px}
+}
+@media(max-width:600px){.workspace>.wrap{padding-left:10px;padding-right:10px}.mobile-topbar{min-height:52px}}
+@media(prefers-reduced-motion:reduce){.app-sidebar,.sidebar-scrim,.sidebar-link,.sidebar-new{transition:none!important}}
+.app-sidebar i[class*="fi-"]{display:inline-flex;align-items:center;justify-content:center;line-height:1}
