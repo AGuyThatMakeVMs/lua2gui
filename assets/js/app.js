@@ -309,6 +309,25 @@ function msg(t){$('msg').textContent=t}
 let view={w:800,h:450,zoom:1};
 function setDevice(){const mode=$('device').value;view=mode==='phone'?{w:390,h:844,zoom:1}:mode==='tablet'?{w:768,h:1024,zoom:1}:{w:800,h:450,zoom:1};const sh=$('deviceShell'),st=$('stage');sh.className='device-shell '+(mode==='desktop'?'':mode);sh.style.width=view.w+'px';sh.style.height=view.h+'px';st.style.width=view.w+'px';st.style.height=view.h+'px';fit()}
 function fit(){const scale=Math.min($('pv').clientWidth/view.w,680/view.h)*view.zoom;$('stage').style.transform='scale('+scale+')';$('deviceShell').style.width=view.w*scale+'px';$('deviceShell').style.height=view.h*scale+'px';$('pv').style.height=Math.max(180,view.h*scale)+'px';$('zoomValue').textContent=$('zoom').value+'%'}
+function addLua2GuiWatermark(roots){
+  roots.filter(root=>root.cls==='ScreenGui').forEach(root=>{
+    if(root.kids.some(child=>(child.props.Name&&child.props.Name.v)==='Lua2GuiBranding'))return;
+    root.kids.push({
+      cls:'TextLabel',vn:'Lua2GuiBranding',
+      props:{
+        Name:{t:'s',v:'Lua2GuiBranding'},Text:{t:'s',v:'Made with Lua 2 Gui'},
+        Size:{t:'UDim2',v:[0,168,0,22]},Position:{t:'UDim2',v:[1,-12,1,-10]},
+        AnchorPoint:{t:'Vector2',v:[1,1]},BackgroundTransparency:{t:'n',v:1},
+        BorderSizePixel:{t:'n',v:0},TextColor3:{t:'Color3',v:[0.66,0.9,0.73]},
+        TextTransparency:{t:'n',v:0.22},TextSize:{t:'n',v:12},
+        Font:{t:'e',en:'Font',v:'GothamMedium'},
+        TextXAlignment:{t:'e',en:'TextXAlignment',v:'Right'},
+        TextYAlignment:{t:'e',en:'TextYAlignment',v:'Center'},
+        ZIndex:{t:'n',v:1000},Active:{t:'b',v:false},Selectable:{t:'b',v:false}
+      },kids:[]
+    });
+  });
+}
 function run(){
   const{roots,warn}=build($('src').value);
   const source=$('src').value;
@@ -321,6 +340,7 @@ function run(){
     XML='';$('out').value='';$('tree').textContent='No UI objects detected yet.';
     st.innerHTML='<div class="empty" style="width:800px;height:450px">Paste a script to preview your UI</div>';
   }else{
+    addLua2GuiWatermark(roots);
     XML=toXML(roots);$('out').value=XML;
     roots.forEach(r=>render(r,st));
     $('tree').textContent=roots.map(r=>tree(r,0)).join('');
@@ -447,3 +467,29 @@ if('ResizeObserver' in window){
   const previewElement=$('pv');
   if(previewElement)previewObserver.observe(previewElement);
 }
+
+/* Responsive navigation drawer */
+(function(){
+  const sidebar=document.getElementById('appSidebar');
+  const toggle=document.getElementById('sidebarToggle');
+  const scrim=document.getElementById('sidebarScrim');
+  if(!sidebar||!toggle||!scrim)return;
+  function close(){
+    sidebar.classList.remove('is-open');scrim.classList.remove('is-visible');
+    toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Open navigation');
+    document.body.classList.remove('nav-open');
+  }
+  function open(){
+    sidebar.classList.add('is-open');scrim.classList.add('is-visible');
+    toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','Close navigation');
+    document.body.classList.add('nav-open');
+  }
+  toggle.addEventListener('click',()=>sidebar.classList.contains('is-open')?close():open());
+  scrim.addEventListener('click',close);
+  sidebar.querySelectorAll('a[href^="#"]').forEach(link=>link.addEventListener('click',()=>{
+    sidebar.querySelectorAll('.sidebar-link').forEach(item=>item.classList.toggle('active',item===link));
+    close();
+  }));
+  document.addEventListener('keydown',event=>{if(event.key==='Escape')close()});
+  window.addEventListener('resize',()=>{if(window.innerWidth>900)close()});
+})();

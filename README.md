@@ -8,6 +8,7 @@ A free browser-based Roblox UI converter. Paste or open supported Lua/Luau UI co
 - `assets/css/app.css` — responsive Studio-inspired interface and preview styling.
 - `assets/js/app.js` — parser, static preview renderer, hierarchy inspector, and RBXMX/ZIP export.
 - `assets/js/library.js` — searchable component catalog with ready-to-insert Roblox Luau starter templates.
+- Flaticon Uicons Bold Rounded and Solid Rounded icon fonts — navigation and tool icons, credited in the sidebar.
 - `assets/icons/` — app icons.
 - `assets/images/` — visual assets.
 - `docs/ARCHITECTURE.md` — architecture and safety notes.
@@ -20,6 +21,10 @@ See [CHANGELOG.md](CHANGELOG.md) for new features, improvements, fixes, and main
 **Project maintenance rule:** Every future site update must add a dated entry to `CHANGELOG.md` and keep this README's project structure and feature descriptions accurate. Entries should summarize what changed, not claim features that were not implemented.
 
 ## UI Library Hub
+
+The responsive workspace includes a desktop left sidebar and a mobile hamburger drawer with shortcuts to the converter, library, export center, preview settings, guide, and community. Flaticon Uicons provide consistent interface icons, with attribution in the sidebar.
+
+Every generated RBXMX conversion adds a small `Made with Lua 2 Gui` TextLabel watermark to each ScreenGui. The original source download remains unchanged.
 
 The built-in component hub provides searchable, categorized starter patterns for panels, controls, and feedback UI. Selecting a template inserts its source into the editor; the existing converter then builds the supported static preview and export. Templates are original examples, not third-party runtime frameworks.
 

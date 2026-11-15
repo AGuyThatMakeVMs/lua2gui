@@ -42,11 +42,40 @@
 }
 </script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;800&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;700&display=swap">
+<link rel="preconnect" href="https://cdn-uicons.flaticon.com">
+<link rel="stylesheet" href="https://cdn-uicons.flaticon.com/4.0.0/uicons-bold-rounded/css/uicons-bold-rounded.css">
+<link rel="stylesheet" href="https://cdn-uicons.flaticon.com/4.0.0/uicons-solid-rounded/css/uicons-solid-rounded.css">
 <link rel="stylesheet" href="assets/css/app.css">
 
 </head>
 <body>
-<div class="wrap">
+<div class="app-shell">
+  <div class="mobile-topbar">
+    <button class="mobile-menu-button" id="sidebarToggle" type="button" aria-controls="appSidebar" aria-expanded="false" aria-label="Open navigation"><i class="fi fi-br-menu-burger" aria-hidden="true"></i><span>Lua 2 Gui</span></button>
+    <span class="mobile-topbar-meta">STUDIO</span>
+  </div>
+  <button class="sidebar-scrim" id="sidebarScrim" type="button" aria-label="Close navigation" tabindex="-1"></button>
+  <aside class="app-sidebar" id="appSidebar" aria-label="Main navigation">
+    <a class="sidebar-brand" href="#top" aria-label="Lua 2 Gui home"><span class="sidebar-brand-mark">L2G</span><span><b>Lua 2 Gui</b><small>CREATOR WORKSPACE</small></span></a>
+    <a class="sidebar-new" href="#converter"><i class="fi fi-br-plus" aria-hidden="true"></i><span>New conversion</span><kbd>↵</kbd></a>
+    <div class="sidebar-section-label">WORKSPACE</div>
+    <nav class="sidebar-nav">
+      <a class="sidebar-link active" href="#converter"><i class="fi fi-br-code" aria-hidden="true"></i><span>Converter</span></a>
+      <a class="sidebar-link" href="#libraryHub"><i class="fi fi-br-apps" aria-hidden="true"></i><span>UI Library Hub</span><span class="sidebar-count">6</span></a>
+      <a class="sidebar-link" href="#exportCenter"><i class="fi fi-br-file-export" aria-hidden="true"></i><span>Export center</span></a>
+      <a class="sidebar-link" href="#guide"><i class="fi fi-br-book-open-cover" aria-hidden="true"></i><span>Quick guide</span></a>
+    </nav>
+    <div class="sidebar-section-label sidebar-tools-label">MORE TOOLS</div>
+    <nav class="sidebar-nav">
+      <a class="sidebar-link" href="#previewTools"><i class="fi fi-br-sliders" aria-hidden="true"></i><span>Preview settings</span></a>
+      <a class="sidebar-link" href="#communityTitle"><i class="fi fi-br-comments" aria-hidden="true"></i><span>Community &amp; support</span></a>
+    </nav>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-status"><span class="sidebar-status-dot"></span><span><b>Local workspace</b><small>No account required</small></span></div>
+    <a class="sidebar-credit" href="https://www.flaticon.com/uicons" target="_blank" rel="noopener noreferrer">Icons by Flaticon Uicons <i class="fi fi-br-arrow-up-right" aria-hidden="true"></i></a>
+  </aside>
+  <main class="workspace">
+<div class="wrap" id="top">
 <header>
   <p class="sub">Turn Lua UI scripts into Roblox model files. Paste code, preview your interface live, and export it for Roblox Studio.</p>
   <div class="chips"><span class="chip">Lua → GUI</span><span class="chip">Live preview</span><span class="chip">.rbxmx export</span><span class="chip">Auto ScreenGui</span><span class="chip">UI components</span></div>
@@ -54,7 +83,7 @@
 
 <div class="studio-bar"><span class="studio-brand">LUA2GUI / STUDIO</span><span class="studio-meta"><span class="studio-dot"></span> Local preview · No code execution</span></div>
 
-<div class="grid">
+<div class="grid" id="converter">
   <section class="card editor-card">
     <h2><i></i>Code editor</h2>
     <textarea id="src" spellcheck="false" placeholder="Paste your Lua UI script here..."></textarea>
@@ -67,7 +96,7 @@
   </section>
   <section class="card preview-card">
     <h2><i></i>Visual workspace</h2>
-    <div class="preview-tools">
+    <div class="preview-tools" id="previewTools">
       <label>Device <select id="device"><option value="desktop">Desktop · 16:9</option><option value="phone">Phone · portrait</option><option value="tablet">Tablet</option></select></label>
       <label>Zoom <input id="zoom" type="range" min="25" max="150" value="100"><output id="zoomValue">100%</output></label>
       <button class="btn" id="fitBtn" type="button">Fit canvas</button>
@@ -108,7 +137,7 @@
   <p class="library-footnote">These are original starter templates, not bundled third-party frameworks. They use Roblox Instances and supported properties. Review and test every script in Roblox Studio.</p>
 </section>
 
-<section class="card out">
+<section class="card out" id="exportCenter">
   <h2><i></i>Export for Roblox Studio</h2>
   <div class="row" style="margin-top:0">
     <input class="name" id="fname" value="LuaGui" aria-label="File name" maxlength="40">
@@ -122,7 +151,7 @@
   <textarea id="out" readonly spellcheck="false" style="margin-top:8px" placeholder="Your Roblox model XML will appear here."></textarea>
 </section>
 
-<div class="steps">
+<div class="steps" id="guide">
   <div class="step"><b>1</b><h3>Paste your script</h3><p>Use <code>Instance.new</code> and properties such as Size, Position, Color3, and Text. The preview updates as you type.</p></div>
   <div class="step"><b>2</b><h3>Export your model</h3><p>Download the .rbxmx file directly, or get it inside a ZIP archive.</p></div>
   <div class="step"><b>3</b><h3>Import into Studio</h3><p>In Roblox Studio, right-click <b>StarterGui</b>, choose <b>Insert from File</b>, and select your .rbxmx file.</p></div>
@@ -193,7 +222,9 @@
 </section>
 
 <footer class="studio-footer"><span>Lua 2 Gui · Built for Roblox creators</span><span>Studio workspace · Browser-based</span></footer>
-</div>
+</div><!-- /.wrap -->
+  </main>
+</div><!-- /.app-shell -->
 
 <script src="assets/js/app.js" defer></script>
 <script src="assets/js/library.js" defer></script>
