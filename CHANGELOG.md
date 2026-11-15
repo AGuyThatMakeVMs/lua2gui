@@ -6,6 +6,32 @@ All notable Lua2Gui updates are documented here, newest first.
 
 - Future updates will be recorded here before or alongside implementation.
 
+## [2026-11-15]
+
+### Added
+- Added a ChatGPT-style desktop sidebar with direct access to Converter, UI Library Hub, Export Center, Quick Guide, Preview Settings, and Community.
+- Added a mobile hamburger menu with a slide-in drawer, scrim, Escape handling, and automatic close after navigation.
+- Added Flaticon Uicons Bold Rounded and Solid Rounded icon fonts for consistent navigation icons, with visible Flaticon attribution.
+- Added an automatic "Made with Lua 2 Gui" watermark TextLabel to every generated ScreenGui in RBXMX output and the visual preview.
+
+### Improved
+- Reorganized the page into a responsive app shell while preserving the converter, parser, component library, SEO sections, and existing export controls.
+- Added anchor targets for the main tools so sidebar navigation works on desktop and mobile.
+
+### Fixed
+- Kept the watermark out of the original .lua / .luau source download; only generated model exports are branded.
+
+### Files changed
+- index.html, assets/css/app.css, assets/js/app.js, README.md, CHANGELOG.md, docs/ARCHITECTURE.md, .github/workflows/validate.yml.
+
+### Test results
+- Pending GitHub Actions validation for this branch.
+
+### Known issues
+- Flaticon icon fonts require an internet connection.
+- The watermark is a small visible Roblox TextLabel at the bottom-right of each generated ScreenGui and can be moved or removed in Roblox Studio.
+- Cloudflare Pages deployment is not confirmed until the Pages build finishes.
+
 ## [2026-11-13]
 
 ### Added
